@@ -1,0 +1,10 @@
+# Dependency directory
+node_modules
+typings
+.vscode
+.jsbeautifyrc
+typings.json
+tsd.json
+
+# Environment variables
+.env

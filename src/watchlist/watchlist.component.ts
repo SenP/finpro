@@ -1,0 +1,113 @@
+import { Observable, Subscription, Subject } from 'rxjs/Rx';
+import 'rxjs/add/operator/map';
+import { Component, OnChanges, OnDestroy, Input } from '@angular/core';
+import { WatchlistService } from '../common/watchlist.service';
+import { QuoteService } from '../common/quote.service';
+import { Watchlist, WatchlistItem } from '../common/watchlist.model';
+import { Quote } from '../common/quote.model';
+
+@Component({
+    selector: 'fp-watchlist',
+    templateUrl: 'app/watchlist/watchlist.component.html',
+    styles: [`           
+                .number-field {
+                    text-align: right
+                }
+
+                .panel-heading {
+                    font-size: 2em;
+                }
+            `]
+})
+
+export class WatchlistComponent implements OnChanges, OnDestroy {
+
+    @Input() watchlist: Watchlist = null;
+    qsub: Subscription;
+    editedItem: WatchlistItem;
+    isEditing: boolean = false;
+    isAdding: boolean = false;
+    isDeleting: boolean = false;
+    msg: string = null;
+
+    constructor(private watchlistService: WatchlistService,
+        private quoteService: QuoteService
+    ) {
+
+        this.qsub = this.quoteService
+            .init()
+            .subscribe(qmap => {
+                console.log(qmap);
+                this.updateQuotes(qmap);
+            });
+    }
+
+    ngOnChanges() {
+        this.isEditing = false;
+        this.isAdding = false;
+        if (this.watchlist && this.watchlist.instruments.length > 0) {
+            this.watchlist.instruments.forEach(ins => {
+                this.quoteService.register(ins.instrument);
+            })
+        }
+    }
+
+    ngOnDestroy() {
+        this.quoteService.reset();
+        this.qsub.unsubscribe();
+    }
+
+    updateQuotes(qmap: Map<string, Quote>) {
+        let totalMarketValue, totalDayChange = 0;
+
+        this.watchlist.instruments.forEach(stock => {
+            let quote = qmap.get(stock.instrument);
+            stock.lastPrice = quote.lastPrice;
+            stock.change = quote.change;
+            stock.percentChange = quote.percentChange;
+        });
+    }
+    addWatchlistItem() {
+        this.editedItem = new WatchlistItem();
+        this.isAdding = true;
+    }
+
+    editWatchlistItem(stock) {
+        this.editedItem = Object.assign(new WatchlistItem(), stock);
+        this.isEditing = true;
+    }
+
+    saveWatchlistItem() {
+        this.msg = "Saving...please wait."
+console.log(this.watchlist);
+        this.watchlistService
+            .saveWatchlistItem(this.watchlist, this.editedItem)
+            .then(res => {
+                this.quoteService.register(this.editedItem.instrument);
+                this.cancelEdit();
+            });
+    }
+
+    cancelEdit() {
+        this.editedItem = null;
+        this.isEditing = false;
+        this.isAdding = false;
+        this.msg = "";
+    }
+
+    deleteWatchlistItem(stock) {
+        console.log('deleting :' + JSON.stringify(stock));
+        this.isDeleting = true;
+        this.watchlistService
+            .deleteWatchlistItem(this.watchlist, stock)
+            .then(res => {
+                this.quoteService.deregister(stock.instrument);
+                this.isDeleting = false;
+            });
+    }
+    //utility method for getting font color based on positive/negative change
+    getChangeColor(val: number) {
+        if (!val || isNaN(val) || val === 0) return 'black';
+        return (val > 0 ? 'green' : 'red');
+    }
+}

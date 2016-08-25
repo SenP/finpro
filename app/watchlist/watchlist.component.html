@@ -1,0 +1,100 @@
+<div class="panel panel-default">
+	<!--Heading-->
+	<div class="panel-heading text-center">
+		<span> <strong> {{ watchlist?.name }} </strong> </span>
+		<span class="btn btn-success btn-xs pull-right" (click)="addWatchlistItem()">
+				<i class="fa fa-plus" ></i>
+		</span>
+	</div>
+	<!--Body-->
+	<div class="panel-body table-responsive">
+		<!--Display message if no stocks in list-->
+		<div *ngIf="!watchlist || watchlist.instruments.length == 0"
+				class="jumbotron">
+			<h2> Watchlist is empty! </h2>
+			<p> Click the Add button above to add stocks to this watchlist.</p>
+		</div>
+		<!--Display form for editing/adding stocks-->
+		<div *ngIf="isEditing || isAdding">
+			<form #f="ngForm" (ngSubmit)="saveWatchlistItem()" class="form-inline">
+				<div class="form-group">
+					Stock:
+					<input type="text" name="instrument" class="form-control input-sm"
+							[(ngModel)]="editedItem.instrument" [readonly]="isEditing"
+							required>
+				</div>
+				&nbsp; &nbsp;
+				<div class="form-group">
+					Units Owned:
+					<input type="text" name="unitsOwned" class="form-control input-sm"
+							[(ngModel)]="editedItem.unitsOwned" required> &nbsp;
+				</div>
+				<div class="form-group">
+					Avg. Price: $
+					<input type="text" name="avgPrice" class="form-control input-sm"
+							[(ngModel)]="editedItem.avgPrice" required>
+				</div>
+				<button type="submit" class="btn btn-primary btn-sm" [disabled]="!f.valid">Save</button>
+				<button type="button" class="btn btn-danger btn-sm" (click)="cancelEdit()">Cancel</button>
+				<span> {{ msg }} </span>
+			</form>
+		</div>
+	</div>
+	<!--Display the table-->
+	<table class="table table-bordered" *ngIf="watchlist?.instruments.length > 0">
+		<!--Display heading-->
+		<thead>
+			<tr class="active">
+				<th>Stock Code </th>
+				<th class="number-field">Units Owned </th>
+				<th class="number-field">Avg Buy Price ($) </th>
+				<th class="number-field">Last Traded Price ($) </th>
+				<th class="number-field">Change ($) </th>
+				<th class="number-field">% Change </th>
+				<th class="number-field">Market Value($)</th>
+				<th class="number-field">Day Change ($) </th>
+				<th class="number-field">Net P/L ($) </th>
+				<th colspan="2" *ngIf="!isEditing && !isAdding"> Actions </th>
+			</tr>
+		</thead>
+		<!--Display the stocks in the watchlist-->
+		<tbody>
+			<tr *ngFor="let stock of watchlist?.instruments">
+				<td>{{ stock.instrument }} </td>
+				<td class="number-field">{{ stock.unitsOwned | number: '1.0-0'}} </td>
+				<td class="number-field">{{ stock.avgPrice | number:'1.2-2'}} </td>
+				<td class="number-field">{{ stock.lastPrice | number:'1.2-2' }} </td>
+				<td class="number-field" [style.color]="getChangeColor(stock.change)">{{ stock.change }} </td>
+				<td class="number-field" [style.color]="getChangeColor(stock.percentChange)">{{ stock.percentChange }} </td>
+				<td class="number-field">{{ stock.marketValue | number:'1.2-2' }} </td>
+				<td class="number-field" [style.color]="getChangeColor(stock.dayChange)">
+					{{ stock.dayChange | number:'1.2-2' }} </td>
+				<td class="number-field" [style.color]="getChangeColor(stock.netPnL)">
+					{{ stock.netPnL | number:'1.2-2' }} </td>
+				<td *ngIf="!isEditing && !isAdding">
+					<a href="#" class="btn btn-warning btn-xs" (click)="editWatchlistItem(stock)">
+						<i class="fa fa-pencil-square-o"></i>
+					</a>
+				</td>
+				<td *ngIf="!isEditing && !isAdding">
+					<a href="#" class="btn btn-danger btn-xs" (click)="deleteWatchlistItem(stock)">
+						<i class="fa fa-trash-o"></i>
+					</a>
+				</td>
+			</tr>
+			<tr *ngIf="watchlist?.instruments.length > 1" class="active">
+				<td>Totals </td>
+				<td class="number-field">{{ watchlist.totalUnitsOwned }}</td>
+				<td> </td>
+				<td> </td>
+				<td> </td>
+				<td> </td>
+				<td class="number-field"><strong>
+					{{ watchlist.totalMarketValue | currency:'USD':true:'1.2-2' }}</strong>
+				</td>
+				<td class="number-field"><strong>{{ watchlist.totalDayChange | currency:'USD':true:'1.2-2' }} </strong></td>
+				<td class="number-field"><strong>{{ watchlist.totalPnL | currency:'USD':true:'1.2-2' }} </strong></td>
+			</tr>
+		</tbody>
+	</table>
+</div>

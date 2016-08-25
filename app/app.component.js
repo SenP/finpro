@@ -1,0 +1,52 @@
+System.register(['@angular/core', './common/watchlist.service', './common/quote.service'], function(exports_1, context_1) {
+    "use strict";
+    var __moduleName = context_1 && context_1.id;
+    var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+        var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+        if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+        else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+        return c > 3 && r && Object.defineProperty(target, key, r), r;
+    };
+    var __metadata = (this && this.__metadata) || function (k, v) {
+        if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+    };
+    var core_1, watchlist_service_1, quote_service_1;
+    var AppComponent;
+    return {
+        setters:[
+            function (core_1_1) {
+                core_1 = core_1_1;
+            },
+            function (watchlist_service_1_1) {
+                watchlist_service_1 = watchlist_service_1_1;
+            },
+            function (quote_service_1_1) {
+                quote_service_1 = quote_service_1_1;
+            }],
+        execute: function() {
+            AppComponent = (function () {
+                function AppComponent(watchlistService, quoteService) {
+                    this.watchlistService = watchlistService;
+                    this.quoteService = quoteService;
+                    this.watchlists = [];
+                }
+                AppComponent.prototype.ngOnInit = function () {
+                    this.watchlists = this.watchlistService.getWatchlists();
+                };
+                AppComponent.prototype.onSelect = function (wl) {
+                    this.selectedWatchlist = wl;
+                };
+                AppComponent = __decorate([
+                    core_1.Component({
+                        selector: 'finpro-app',
+                        template: "\n                   <nav-bar></nav-bar>\n                   <div class=\"container-fluid\">\n                        <div class=\"row\">\n                            <div class=\"col-md-3 side-bar\">\n                                <div>\n                                    <button class=\"btn btn-default center-block\" (click)=\"wl.onChangeSelection(null)\">\n                                        View Dashboard\n                                    </button>\n                                </div>\n                                <hr />\n                                <fp-watchlists #wl [watchlists]=\"watchlists\" (changeSelection)=\"onSelect($event)\"></fp-watchlists>\n                            </div>\n                            <div *ngIf=\"selectedWatchlist\" class=\"col-md-9 main-area\">\n                                <fp-watchlist [watchlist]=\"selectedWatchlist\"></fp-watchlist>\n                            </div>\n                            <div *ngIf=\"!selectedWatchlist\" class=\"col-md-9 main-area\">\n                                <fp-dashboard [watchlists]=\"watchlists\"></fp-dashboard>\n                            </div>\n                        </div>\n                    </div>\n                ",
+                        styles: ["\n           \n        "]
+                    }), 
+                    __metadata('design:paramtypes', [watchlist_service_1.WatchlistService, quote_service_1.QuoteService])
+                ], AppComponent);
+                return AppComponent;
+            }());
+            exports_1("AppComponent", AppComponent);
+        }
+    }
+});
