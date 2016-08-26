@@ -41,26 +41,17 @@ System.register(['rxjs/add/operator/map', '@angular/core', '../common/watchlist.
                     this.qsub = this.quoteService
                         .init()
                         .subscribe(function (qmap) {
-                        console.log(qmap);
                         _this.updateQuotes(qmap);
                     });
                 }
                 WatchlistComponent.prototype.ngOnChanges = function () {
-                    var _this = this;
                     this.isEditing = false;
                     this.isAdding = false;
-                    if (this.watchlist && this.watchlist.instruments.length > 0) {
-                        this.watchlist.instruments.forEach(function (ins) {
-                            _this.quoteService.register(ins.instrument);
-                        });
-                    }
                 };
                 WatchlistComponent.prototype.ngOnDestroy = function () {
-                    this.quoteService.reset();
                     this.qsub.unsubscribe();
                 };
                 WatchlistComponent.prototype.updateQuotes = function (qmap) {
-                    var totalMarketValue, totalDayChange = 0;
                     this.watchlist.instruments.forEach(function (stock) {
                         var quote = qmap.get(stock.instrument);
                         stock.lastPrice = quote.lastPrice;

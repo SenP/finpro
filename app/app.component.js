@@ -39,7 +39,7 @@ System.register(['@angular/core', './common/watchlist.service', './common/quote.
                 AppComponent = __decorate([
                     core_1.Component({
                         selector: 'finpro-app',
-                        template: "\n                   <nav-bar></nav-bar>\n                   <div class=\"container-fluid\">\n                        <div class=\"row\">\n                            <div class=\"col-md-3 side-bar\">\n                                <div>\n                                    <button class=\"btn btn-default center-block\" (click)=\"wl.onChangeSelection(null)\">\n                                        View Dashboard\n                                    </button>\n                                </div>\n                                <hr />\n                                <fp-watchlists #wl [watchlists]=\"watchlists\" (changeSelection)=\"onSelect($event)\"></fp-watchlists>\n                            </div>\n                            <div *ngIf=\"selectedWatchlist\" class=\"col-md-9 main-area\">\n                                <fp-watchlist [watchlist]=\"selectedWatchlist\"></fp-watchlist>\n                            </div>\n                            <div *ngIf=\"!selectedWatchlist\" class=\"col-md-9 main-area\">\n                                <fp-dashboard [watchlists]=\"watchlists\"></fp-dashboard>\n                            </div>\n                        </div>\n                    </div>\n                ",
+                        templateUrl: 'app/app.component.html',
                         styles: ["\n           \n        "]
                     }), 
                     __metadata('design:paramtypes', [watchlist_service_1.WatchlistService, quote_service_1.QuoteService])

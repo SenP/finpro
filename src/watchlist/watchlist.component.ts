@@ -37,29 +37,20 @@ export class WatchlistComponent implements OnChanges, OnDestroy {
         this.qsub = this.quoteService
             .init()
             .subscribe(qmap => {
-                console.log(qmap);
                 this.updateQuotes(qmap);
             });
     }
 
     ngOnChanges() {
         this.isEditing = false;
-        this.isAdding = false;
-        if (this.watchlist && this.watchlist.instruments.length > 0) {
-            this.watchlist.instruments.forEach(ins => {
-                this.quoteService.register(ins.instrument);
-            })
-        }
+        this.isAdding = false;        
     }
 
     ngOnDestroy() {
-        this.quoteService.reset();
         this.qsub.unsubscribe();
     }
 
     updateQuotes(qmap: Map<string, Quote>) {
-        let totalMarketValue, totalDayChange = 0;
-
         this.watchlist.instruments.forEach(stock => {
             let quote = qmap.get(stock.instrument);
             stock.lastPrice = quote.lastPrice;
@@ -67,6 +58,7 @@ export class WatchlistComponent implements OnChanges, OnDestroy {
             stock.percentChange = quote.percentChange;
         });
     }
+
     addWatchlistItem() {
         this.editedItem = new WatchlistItem();
         this.isAdding = true;
