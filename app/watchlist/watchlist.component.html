@@ -64,8 +64,8 @@
 				<td class="number-field">{{ stock.unitsOwned | number: '1.0-0'}} </td>
 				<td class="number-field">{{ stock.avgPrice | number:'1.2-2'}} </td>
 				<td class="number-field">{{ stock.lastPrice | number:'1.2-2' }} </td>
-				<td class="number-field" [style.color]="getChangeColor(stock.change)">{{ stock.change }} </td>
-				<td class="number-field" [style.color]="getChangeColor(stock.percentChange)">{{ stock.percentChange }} </td>
+				<td class="number-field" [style.color]="getChangeColor(stock.change)">{{ stock.change | number:'1.2-2' }} </td>
+				<td class="number-field" [style.color]="getChangeColor(stock.percentChange)">{{ stock.percentChange | number:'1.2-2' }} </td>
 				<td class="number-field">{{ stock.marketValue | number:'1.2-2' }} </td>
 				<td class="number-field" [style.color]="getChangeColor(stock.dayChange)">
 					{{ stock.dayChange | number:'1.2-2' }} </td>

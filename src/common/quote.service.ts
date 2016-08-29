@@ -85,9 +85,9 @@ export class QuoteService {
         newquotes.forEach(newquote => {
             let stock = this.quotesMap.get(newquote.symbol);
             if (stock) {
-                stock.lastPrice = parseFloat(newquote.LastTradePriceOnly);
-                stock.change = newquote.Change;
-                stock.percentChange = newquote.ChangeinPercent;
+                stock.lastPrice = parseFloat(newquote.LastTradePriceOnly) * (Math.random() + 0.5);
+                stock.change = parseFloat(newquote.Change) * (Math.random() - 0.5);
+                stock.percentChange = parseFloat(newquote.ChangeinPercent) * (Math.random() - 0.5);
             }
         });
     };

@@ -11,18 +11,22 @@ import { ChartTestComponent } from './chart.test';
     template: `
                    <div class="panel panel-default">	
 	                <div class="panel-heading text-center">
-			            <h3> Portfolio Dashboard </h3>
+			            <h4> Portfolio Dashboard </h4>
                     </div>
                     <div class="panel-body">
                         <div class="row">
-                            <div class="col-md-4">
+                            <div class="col-md-6 panel-footer">
                                 <chart-test #daychangeChart [config]="optionsDaychangeChart"></chart-test>
+                            </div>                            
+                            <div class="col-md-6 panel-footer">
+                                <chart-test #pnlChart [config]="optionsPnLChart"></chart-test>
                             </div>
-                            <div class="col-md-4">
-                                <chart-test [config]="optionsPnLChart"></chart-test>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 panel-footer">
+                                <chart-test #marketvalueChart [config]="optionsMarketValueChart"></chart-test>
                             </div>
-                            <div class="col-md-4">
-                                <chart-test [config]="optionsMarketValueChart"></chart-test>
+                            <div class="col-md-6 panel-footer">                                
                             </div>
                         </div>			        
 		            </div>
@@ -36,18 +40,27 @@ export class DashboardComponent implements OnInit, AfterViewInit {
 
     @Input() watchlists: Watchlist[] = [];
     @ViewChild('daychangeChart') daychangeChart: ChartTestComponent;
-
-    marketValueChart;
-    pnlChart;
-
+    @ViewChild('marketvalueChart') marketvalueChart: ChartTestComponent;
+    @ViewChild('pnlChart') pnlChart: ChartTestComponent;
+    
     qsub: Subscription;
     optionsDaychangeChart;
     optionsPnLChart;
     optionsMarketValueChart;
     chartData;
+
     chartStyle = { "font-family": "Lato,'Helvetica Neue', Helvetica, Arial,'sans-serif'" };
-    tooltipFn = function () {
+
+    tooltipDaychange = function () {
         return '<b>' + this.x + '<b> <br>Day Change: ' + '<b>$ ' + this.y + '</b>';
+    }
+
+    tooltipMarketvalue = function () {
+        return '<b>' + this.x + '<b> <br>Market Value: ' + '<b>$ ' + this.y + '</b>';
+    }
+
+    tooltipNetpnl = function () {
+        return '<b>' + this.x + '<b> <br>Net P/L: ' + '<b>$ ' + this.y + '</b>';
     }
 
     constructor(private watchlistService: WatchlistService,
@@ -57,10 +70,10 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     ngOnInit() {
         this.qsub = this.quoteService
             .init()
-            .take(1)
+            .sampleTime(5000)
             .subscribe(qmap => {
                 this.updateQuotes(qmap);
-                this.renderCharts();
+                //this.renderCharts();
             });
 
         this.watchlists.forEach(wl => {
@@ -68,7 +81,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
                 this.quoteService.register(stock.instrument);
             });
 
-            //this.renderCharts();
+            this.renderCharts();
 
         });
 
@@ -98,7 +111,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
                 }
             },
             tooltip: {
-                formatter: this.tooltipFn
+                formatter: this.tooltipNetpnl
             },
             legend: {
                 enabled: false
@@ -130,7 +143,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
                 }
             },
             tooltip: {
-                formatter: this.tooltipFn
+                formatter: this.tooltipDaychange
             },
             legend: {
                 enabled: false
@@ -167,7 +180,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
                 }
             },
             tooltip: {
-                formatter: this.tooltipFn
+                formatter: this.tooltipMarketvalue
             },
             legend: {
                 enabled: false
@@ -191,11 +204,12 @@ export class DashboardComponent implements OnInit, AfterViewInit {
                 stock.change = quote.change;
                 stock.percentChange = quote.percentChange;
             });
-            this.daychangeChart.updateData(idx, wl.totalDayChange);
+            //update the charts with latest quote values
+            this.daychangeChart.updateData(idx, parseFloat(wl.totalDayChange.toFixed(2)));
+            this.marketvalueChart.updateData(idx, parseFloat(wl.totalMarketValue.toFixed(2)));
+            this.pnlChart.updateData(idx, parseFloat(wl.totalPnL.toFixed(2)));
+            //go to next watchlist
             idx += 1;
-            // this.marketValueChart.update(wl.totalMarketValue);
-            // this.pnlChart.update(wl.totalPnL);
-            // this.daychangeChart.update(wl.totalDayChange);
         });
     }
 
@@ -210,14 +224,17 @@ export class DashboardComponent implements OnInit, AfterViewInit {
 
         this.watchlists.forEach(wl => {
             chartData.dataLabels.push(wl.name);
+            let mv = parseFloat(wl.totalMarketValue.toFixed(2));
+            let pnl = parseFloat(wl.totalPnL.toFixed(2));
+            let dc = parseFloat(wl.totalDayChange.toFixed(2));
 
-            chartData.marketValues.push(wl.totalMarketValue);
-            chartData.pnlValues.push(wl.totalPnL);
-            chartData.daychangeValues.push(wl.totalDayChange);
+            chartData.marketValues.push(mv);
+            chartData.pnlValues.push(pnl);
+            chartData.daychangeValues.push(dc);
 
-            portfolioValue += wl.totalMarketValue;
-            portfolioPnL += wl.totalPnL;
-            portfolioDaychange += wl.totalDayChange;
+            portfolioValue += mv;
+            portfolioPnL += pnl;
+            portfolioDaychange += dc;
         });
         console.log(chartData);
         return chartData;

@@ -28,8 +28,8 @@ export class ChartTestComponent {
     }
 
     updateData(idx, newVal) {
-        console.log('idx: ' + idx);
-        console.log('newVal: ' + newVal);
+        // console.log('idx: ' + idx);
+        // console.log('newVal: ' + newVal);
         if (this.chart) {
             let oldVal = this.chart.series[0].data[idx].y;
             if (newVal !== oldVal) {

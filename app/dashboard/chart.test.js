@@ -30,8 +30,8 @@ System.register(['@angular/core', 'angular2-highcharts'], function(exports_1, co
                 };
                 ChartTestComponent.prototype.updateData = function (idx, newVal) {
                     var _this = this;
-                    console.log('idx: ' + idx);
-                    console.log('newVal: ' + newVal);
+                    // console.log('idx: ' + idx);
+                    // console.log('newVal: ' + newVal);
                     if (this.chart) {
                         var oldVal = this.chart.series[0].data[idx].y;
                         if (newVal !== oldVal) {
