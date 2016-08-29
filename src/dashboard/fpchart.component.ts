@@ -2,7 +2,7 @@ import { Component, Input }        from '@angular/core';
 import { CHART_DIRECTIVES, ChartComponent } from 'angular2-highcharts';
 
 @Component({
-    selector: 'chart-test',
+    selector: 'fp-chart',
     directives: [CHART_DIRECTIVES],
     styles: [`
                 chart {
@@ -15,7 +15,7 @@ import { CHART_DIRECTIVES, ChartComponent } from 'angular2-highcharts';
                 </chart>
             `
 })
-export class ChartTestComponent {
+export class FPChartComponent {
     @Input() config;
     chart: ChartComponent;
 
@@ -25,6 +25,10 @@ export class ChartTestComponent {
 
     saveInstance(chartInstance) {
         this.chart = chartInstance;
+    }
+
+    ngAfterViewInit() {
+        console.log('in FPChartComponent after view init');
     }
 
     updateData(idx, newVal) {

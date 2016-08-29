@@ -26,7 +26,7 @@
 			<form #f="ngForm" (ngSubmit)="saveWatchlist()" class="form">
 				<div class="form-group">
 					Name:
-					<input type="text" name="name" class="form-control input-sm"
+					<input #editName type="text" name="name" class="form-control input-sm"
 							[(ngModel)]="editedItem.name" maxlength="15"
 							required>
 				</div>

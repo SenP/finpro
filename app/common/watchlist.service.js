@@ -73,8 +73,18 @@ System.register(['@angular/core', './watchlist.model'], function(exports_1, cont
                         avgPrice: 400
                     }));
                 }
+                //Get the watchlists (modify later to take userid param)
                 WatchlistService.prototype.getWatchlists = function () {
                     return this.watchlists;
+                };
+                //Update watchlist instruments with given quotes 
+                WatchlistService.prototype.updateQuotes = function (qmap, wl) {
+                    wl.instruments.forEach(function (stock) {
+                        var quote = qmap.get(stock.instrument);
+                        stock.lastPrice = quote.lastPrice;
+                        stock.change = quote.change;
+                        stock.percentChange = quote.percentChange;
+                    });
                 };
                 //Save a watchlist, simulate http post delay  
                 WatchlistService.prototype.saveWatchlist = function (wl) {

@@ -16,7 +16,7 @@ export class QuoteService {
     private quotesMap: Map<string, Quote>;
 
     constructor(private jsonp: Jsonp, private http: Http) {
-        this.quotesMap = new Map();
+        this.quotesMap = new Map<string, Quote>();
         this.quotePublisher = new Subject();
         this.quoteScheduler = Observable.timer(0, 3000);
         this.quoteScheduler
@@ -40,7 +40,6 @@ export class QuoteService {
     // Remove instrument from the quotes map
     deregister(stock) {
         this.quotesMap.delete(stock);
-        console.log(this.quotesMap);
     };
 
     // Clear the quotes map
@@ -80,14 +79,14 @@ export class QuoteService {
         }
     }
 
-    // Update the quotes map with the new quote values from API (called from refreshQuotes method above)
+    // Update the quotes map with the new quote values from API (called from refreshQuotes method)
     updateQuotes(newquotes) {
         newquotes.forEach(newquote => {
             let stock = this.quotesMap.get(newquote.symbol);
             if (stock) {
-                stock.lastPrice = parseFloat(newquote.LastTradePriceOnly) * (Math.random() + 0.5);
-                stock.change = parseFloat(newquote.Change) * (Math.random() - 0.5);
-                stock.percentChange = parseFloat(newquote.ChangeinPercent) * (Math.random() - 0.5);
+                stock.lastPrice = parseFloat(newquote.LastTradePriceOnly); // * (Math.random() + 0.5);
+                stock.change = parseFloat(newquote.Change); // * (Math.random() - 0.5);
+                stock.percentChange = parseFloat(newquote.ChangeinPercent); // * (Math.random() - 0.5);
             }
         });
     };

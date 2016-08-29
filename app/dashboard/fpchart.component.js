@@ -28,6 +28,9 @@ System.register(['@angular/core', 'angular2-highcharts'], function(exports_1, co
                 FPChartComponent.prototype.saveInstance = function (chartInstance) {
                     this.chart = chartInstance;
                 };
+                FPChartComponent.prototype.ngAfterViewInit = function () {
+                    console.log('in FPChartComponent after view init');
+                };
                 FPChartComponent.prototype.updateData = function (idx, newVal) {
                     var _this = this;
                     // console.log('idx: ' + idx);

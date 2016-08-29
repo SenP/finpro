@@ -40,7 +40,7 @@ System.register(['@angular/core', './common/watchlist.service', './common/quote.
                     core_1.Component({
                         selector: 'finpro-app',
                         templateUrl: 'app/app.component.html',
-                        styles: ["\n           \n        "]
+                        styles: ["\n                .posLabel {\n                    color: green;\n                }\n                .negLabel {\n                    color: red;\n                }\n        "]
                     }), 
                     __metadata('design:paramtypes', [watchlist_service_1.WatchlistService, quote_service_1.QuoteService])
                 ], AppComponent);

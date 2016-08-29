@@ -19,43 +19,27 @@ System.register(['@angular/core'], function(exports_1, context_1) {
             }],
         execute: function() {
             SignDirective = (function () {
-                function SignDirective() {
-                    console.log(this.textContent);
+                function SignDirective(renderer, elementRef) {
+                    this.renderer = renderer;
+                    this.elementRef = elementRef;
                 }
-                Object.defineProperty(SignDirective.prototype, "textColor", {
-                    get: function () {
-                        //console.log(this.textContent);
-                        var num = parseFloat(this.textContent);
-                        if (isNaN(num) || num === 0) {
-                            return 'black';
-                        }
-                        if (num > 0) {
-                            return this.colors.split(',')[1];
-                        }
-                        else {
-                            return this.colors.split(',')[1];
-                        }
-                    },
-                    enumerable: true,
-                    configurable: true
-                });
-                __decorate([
-                    core_1.Input(), 
-                    __metadata('design:type', String)
-                ], SignDirective.prototype, "colors", void 0);
-                __decorate([
-                    core_1.HostBinding('attr.id'), 
-                    __metadata('design:type', Object)
-                ], SignDirective.prototype, "textContent", void 0);
-                __decorate([
-                    core_1.HostBinding('style.color'), 
-                    __metadata('design:type', Object)
-                ], SignDirective.prototype, "textColor", null);
+                SignDirective.prototype.ngAfterViewChecked = function () {
+                    var text = this.elementRef.nativeElement.innerHTML;
+                    var val = parseFloat(text.match(/[\d\.\-eE+]/g).join(""));
+                    if (isNaN(val) || val === 0)
+                        return;
+                    if (val < 0) {
+                        this.renderer.setElementStyle(this.elementRef.nativeElement, 'color', 'red');
+                    }
+                    else {
+                        this.renderer.setElementStyle(this.elementRef.nativeElement, 'color', 'green');
+                    }
+                };
                 SignDirective = __decorate([
                     core_1.Directive({
                         selector: '[sign]'
                     }), 
-                    __metadata('design:paramtypes', [])
+                    __metadata('design:paramtypes', [core_1.Renderer, core_1.ElementRef])
                 ], SignDirective);
                 return SignDirective;
             }());

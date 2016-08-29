@@ -43,12 +43,16 @@ System.register(['@angular/core', '../common/watchlist.service', '../common/watc
                     this.changeSelection.emit(wl);
                 };
                 WatchlistsComponent.prototype.addWatchlist = function () {
+                    var _this = this;
                     this.editedItem = new watchlist_model_1.Watchlist();
                     this.isAdding = true;
+                    setTimeout(function () { return _this.editName.nativeElement.focus(); }, 100);
                 };
                 WatchlistsComponent.prototype.editWatchlist = function (wl) {
+                    var _this = this;
                     this.editedItem = Object.assign(new watchlist_model_1.Watchlist(), wl);
                     this.isEditing = true;
+                    setTimeout(function () { return _this.editName.nativeElement.focus(); }, 100);
                 };
                 WatchlistsComponent.prototype.saveWatchlist = function () {
                     var _this = this;
@@ -101,6 +105,10 @@ System.register(['@angular/core', '../common/watchlist.service', '../common/watc
                     core_1.Output(), 
                     __metadata('design:type', Object)
                 ], WatchlistsComponent.prototype, "changeSelection", void 0);
+                __decorate([
+                    core_1.ViewChild('editName'), 
+                    __metadata('design:type', Object)
+                ], WatchlistsComponent.prototype, "editName", void 0);
                 WatchlistsComponent = __decorate([
                     core_1.Component({
                         selector: 'fp-watchlists',

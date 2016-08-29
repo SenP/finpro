@@ -1,4 +1,4 @@
-System.register(['@angular/core', '../common/watchlist.service', '../common/quote.service', './chart.test'], function(exports_1, context_1) {
+System.register(['@angular/core', '../common/watchlist.service', '../common/quote.service', './fpchart.component'], function(exports_1, context_1) {
     "use strict";
     var __moduleName = context_1 && context_1.id;
     var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
@@ -10,7 +10,7 @@ System.register(['@angular/core', '../common/watchlist.service', '../common/quot
     var __metadata = (this && this.__metadata) || function (k, v) {
         if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
     };
-    var core_1, watchlist_service_1, quote_service_1, chart_test_1;
+    var core_1, watchlist_service_1, quote_service_1, fpchart_component_1;
     var DashboardComponent;
     return {
         setters:[
@@ -23,8 +23,8 @@ System.register(['@angular/core', '../common/watchlist.service', '../common/quot
             function (quote_service_1_1) {
                 quote_service_1 = quote_service_1_1;
             },
-            function (chart_test_1_1) {
-                chart_test_1 = chart_test_1_1;
+            function (fpchart_component_1_1) {
+                fpchart_component_1 = fpchart_component_1_1;
             }],
         execute: function() {
             DashboardComponent = (function () {
@@ -37,7 +37,7 @@ System.register(['@angular/core', '../common/watchlist.service', '../common/quot
                         return '<b>' + this.x + '<b> <br>Day Change: ' + '<b>$ ' + this.y + '</b>';
                     };
                     this.tooltipMarketvalue = function () {
-                        return '<b>' + this.x + '<b> <br>Market Value: ' + '<b>$ ' + this.y + '</b>';
+                        return '<b>' + this.key + '<b> <br>Market Value: ' + '<b>$ ' + this.y + '</b>';
                     };
                     this.tooltipNetpnl = function () {
                         return '<b>' + this.x + '<b> <br>Net P/L: ' + '<b>$ ' + this.y + '</b>';
@@ -45,25 +45,89 @@ System.register(['@angular/core', '../common/watchlist.service', '../common/quot
                 }
                 DashboardComponent.prototype.ngOnInit = function () {
                     var _this = this;
-                    this.qsub = this.quoteService
-                        .init()
-                        .sampleTime(5000)
-                        .subscribe(function (qmap) {
-                        _this.updateQuotes(qmap);
-                        //this.renderCharts();
-                    });
+                    //register all instruments with quote service
                     this.watchlists.forEach(function (wl) {
                         wl.instruments.forEach(function (stock) {
                             _this.quoteService.register(stock.instrument);
                         });
-                        _this.renderCharts();
+                        //subscribe to quote publisher,  update quotes once and render charts
+                        _this.qsub = _this.quoteService
+                            .init()
+                            .take(1)
+                            .subscribe(function (qmap) {
+                            _this.updateQuotes(qmap);
+                            _this.renderCharts();
+                        });
                     });
                 };
                 DashboardComponent.prototype.ngAfterViewInit = function () {
-                    console.log(this.daychangeChart);
+                    var _this = this;
+                    console.log('in dashboard after view init');
+                    //subscribe to quote publisher and update quotes at specified interval
+                    this.qsub = this.quoteService
+                        .init()
+                        .subscribe(function (qmap) {
+                        _this.updateQuotes(qmap);
+                    });
                 };
                 DashboardComponent.prototype.renderCharts = function () {
-                    this.chartData = this.getChartData();
+                    this.setChartData();
+                    this.setChartOptions();
+                };
+                DashboardComponent.prototype.updateQuotes = function (qmap) {
+                    var _this = this;
+                    var idx = 0;
+                    this.watchlists.forEach(function (wl) {
+                        //update the watchlist with new quotes
+                        _this.watchlistService.updateQuotes(qmap, wl);
+                        //update the charts with new values
+                        _this.daychangeChart.updateData(idx, wl.totalDayChange);
+                        _this.marketvalueChart.updateData(idx, wl.totalMarketValue);
+                        _this.pnlChart.updateData(idx, wl.totalPnL);
+                        //go to next watchlist
+                        idx += 1;
+                    });
+                };
+                DashboardComponent.prototype.setChartData = function () {
+                    var portfolioDaychange, portfolioPnL, portfolioValue = 0;
+                    var chartData = {
+                        dataLabels: [],
+                        marketValues: [],
+                        pnlValues: [],
+                        daychangeValues: [],
+                        portfolioValue: 0,
+                        portfolioPnL: 0,
+                        portfolioDaychange: 0
+                    };
+                    this.watchlists.forEach(function (wl) {
+                        chartData.dataLabels.push(wl.name);
+                        chartData.marketValues.push([wl.name, wl.totalMarketValue]);
+                        chartData.pnlValues.push(wl.totalPnL);
+                        chartData.daychangeValues.push(wl.totalDayChange);
+                        chartData.portfolioValue += wl.totalMarketValue;
+                        chartData.portfolioPnL += wl.totalPnL;
+                        chartData.portfolioDaychange += wl.totalDayChange;
+                    });
+                    console.log(chartData);
+                    this.chartData = chartData;
+                };
+                DashboardComponent.prototype.setChartOptions = function () {
+                    this.optionsBaseChart = {
+                        xAxis: {
+                            categories: this.chartData.dataLabels
+                        },
+                        yAxis: {
+                            title: {
+                                text: null
+                            }
+                        },
+                        legend: {
+                            enabled: false
+                        },
+                        credits: {
+                            enabled: false
+                        }
+                    };
                     this.optionsPnLChart = {
                         chart: {
                             type: 'column',
@@ -72,22 +136,8 @@ System.register(['@angular/core', '../common/watchlist.service', '../common/quot
                         title: {
                             text: 'Net P/L by Watchlist'
                         },
-                        xAxis: {
-                            categories: this.chartData.dataLabels
-                        },
-                        yAxis: {
-                            title: {
-                                text: null
-                            }
-                        },
                         tooltip: {
                             formatter: this.tooltipNetpnl
-                        },
-                        legend: {
-                            enabled: false
-                        },
-                        credits: {
-                            enabled: false
                         },
                         series: [{
                                 data: this.chartData.pnlValues,
@@ -95,6 +145,7 @@ System.register(['@angular/core', '../common/watchlist.service', '../common/quot
                                 negativeColor: 'red'
                             }]
                     };
+                    this.optionsPnLChart = Object.assign({}, this.optionsBaseChart, this.optionsPnLChart);
                     this.optionsDaychangeChart = {
                         chart: {
                             type: 'column',
@@ -103,22 +154,8 @@ System.register(['@angular/core', '../common/watchlist.service', '../common/quot
                         title: {
                             text: 'Day Change by Watchlist'
                         },
-                        xAxis: {
-                            categories: this.chartData.dataLabels
-                        },
-                        yAxis: {
-                            title: {
-                                text: null
-                            }
-                        },
                         tooltip: {
                             formatter: this.tooltipDaychange
-                        },
-                        legend: {
-                            enabled: false
-                        },
-                        credits: {
-                            enabled: false
                         },
                         series: [{
                                 data: this.chartData.daychangeValues,
@@ -126,6 +163,7 @@ System.register(['@angular/core', '../common/watchlist.service', '../common/quot
                                 negativeColor: 'red'
                             }]
                     };
+                    this.optionsDaychangeChart = Object.assign({}, this.optionsBaseChart, this.optionsDaychangeChart);
                     this.optionsMarketValueChart = {
                         chart: {
                             type: 'pie',
@@ -133,14 +171,6 @@ System.register(['@angular/core', '../common/watchlist.service', '../common/quot
                         },
                         title: {
                             text: 'Market Value by Watchlist'
-                        },
-                        xAxis: {
-                            categories: this.chartData.dataLabels
-                        },
-                        yAxis: {
-                            title: {
-                                text: null
-                            }
                         },
                         plotOptions: {
                             pie: {
@@ -150,58 +180,11 @@ System.register(['@angular/core', '../common/watchlist.service', '../common/quot
                         tooltip: {
                             formatter: this.tooltipMarketvalue
                         },
-                        legend: {
-                            enabled: false
-                        },
-                        credits: {
-                            enabled: false
-                        },
                         series: [{
                                 data: this.chartData.marketValues
                             }]
                     };
-                };
-                DashboardComponent.prototype.updateQuotes = function (qmap) {
-                    var _this = this;
-                    console.log(qmap);
-                    var idx = 0;
-                    this.watchlists.forEach(function (wl) {
-                        wl.instruments.forEach(function (stock) {
-                            var quote = qmap.get(stock.instrument);
-                            stock.lastPrice = quote.lastPrice;
-                            stock.change = quote.change;
-                            stock.percentChange = quote.percentChange;
-                        });
-                        //update the charts with latest quote values
-                        _this.daychangeChart.updateData(idx, parseFloat(wl.totalDayChange.toFixed(2)));
-                        _this.marketvalueChart.updateData(idx, parseFloat(wl.totalMarketValue.toFixed(2)));
-                        _this.pnlChart.updateData(idx, parseFloat(wl.totalPnL.toFixed(2)));
-                        //go to next watchlist
-                        idx += 1;
-                    });
-                };
-                DashboardComponent.prototype.getChartData = function () {
-                    var portfolioDaychange, portfolioPnL, portfolioValue = 0;
-                    var chartData = {
-                        dataLabels: [],
-                        marketValues: [],
-                        pnlValues: [],
-                        daychangeValues: []
-                    };
-                    this.watchlists.forEach(function (wl) {
-                        chartData.dataLabels.push(wl.name);
-                        var mv = parseFloat(wl.totalMarketValue.toFixed(2));
-                        var pnl = parseFloat(wl.totalPnL.toFixed(2));
-                        var dc = parseFloat(wl.totalDayChange.toFixed(2));
-                        chartData.marketValues.push(mv);
-                        chartData.pnlValues.push(pnl);
-                        chartData.daychangeValues.push(dc);
-                        portfolioValue += mv;
-                        portfolioPnL += pnl;
-                        portfolioDaychange += dc;
-                    });
-                    console.log(chartData);
-                    return chartData;
+                    this.optionsMarketValueChart = Object.assign({}, this.optionsBaseChart, this.optionsMarketValueChart);
                 };
                 __decorate([
                     core_1.Input(), 
@@ -209,21 +192,20 @@ System.register(['@angular/core', '../common/watchlist.service', '../common/quot
                 ], DashboardComponent.prototype, "watchlists", void 0);
                 __decorate([
                     core_1.ViewChild('daychangeChart'), 
-                    __metadata('design:type', chart_test_1.ChartTestComponent)
+                    __metadata('design:type', fpchart_component_1.FPChartComponent)
                 ], DashboardComponent.prototype, "daychangeChart", void 0);
                 __decorate([
                     core_1.ViewChild('marketvalueChart'), 
-                    __metadata('design:type', chart_test_1.ChartTestComponent)
+                    __metadata('design:type', fpchart_component_1.FPChartComponent)
                 ], DashboardComponent.prototype, "marketvalueChart", void 0);
                 __decorate([
                     core_1.ViewChild('pnlChart'), 
-                    __metadata('design:type', chart_test_1.ChartTestComponent)
+                    __metadata('design:type', fpchart_component_1.FPChartComponent)
                 ], DashboardComponent.prototype, "pnlChart", void 0);
                 DashboardComponent = __decorate([
                     core_1.Component({
                         selector: 'fp-dashboard',
-                        template: "\n                   <div class=\"panel panel-default\">\t\n\t                <div class=\"panel-heading text-center\">\n\t\t\t            <h4> Portfolio Dashboard </h4>\n                    </div>\n                    <div class=\"panel-body\">\n                        <div class=\"row\">\n                            <div class=\"col-md-6 panel-footer\">\n                                <chart-test #daychangeChart [config]=\"optionsDaychangeChart\"></chart-test>\n                            </div>                            \n                            <div class=\"col-md-6 panel-footer\">\n                                <chart-test #pnlChart [config]=\"optionsPnLChart\"></chart-test>\n                            </div>\n                        </div>\n                        <div class=\"row\">\n                            <div class=\"col-md-6 panel-footer\">\n                                <chart-test #marketvalueChart [config]=\"optionsMarketValueChart\"></chart-test>\n                            </div>\n                            <div class=\"col-md-6 panel-footer\">                                \n                            </div>\n                        </div>\t\t\t        \n\t\t            </div>\n                ",
-                        styles: ["\n           \n        "]
+                        templateUrl: 'app/dashboard/dashboard.component.html'
                     }), 
                     __metadata('design:paramtypes', [watchlist_service_1.WatchlistService, quote_service_1.QuoteService])
                 ], DashboardComponent);

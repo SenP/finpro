@@ -1,28 +1,22 @@
-import { Directive, HostBinding, Input } from '@angular/core';
+import { Directive, Renderer, ElementRef } from '@angular/core';
 
 @Directive({
     selector: '[sign]'
 })
 export class SignDirective {
-    @Input() colors: string;
-    @HostBinding('attr.id') textContent;
-    @HostBinding('style.color') get textColor() {
-        //console.log(this.textContent);
-        let num = parseFloat(this.textContent);
-        
-        if (isNaN(num) || num === 0) { 
-            return 'black';
-        }
+    constructor(public renderer: Renderer, public elementRef: ElementRef) { }
 
-        if (num > 0) {
-            return this.colors.split(',')[1];
+    ngAfterViewChecked() {
+        let text = this.elementRef.nativeElement.innerHTML;
+        let val = parseFloat(text.match(/[\d\.\-eE+]/g).join(""));
+        if (isNaN(val) || val === 0) return;
+
+        if (val < 0) {
+            this.renderer.setElementStyle(this.elementRef.nativeElement, 'color', 'red');
         }
         else {
-            return this.colors.split(',')[1];
+            this.renderer.setElementStyle(this.elementRef.nativeElement, 'color', 'green');
         }
     }
 
-    constructor() {
-        console.log(this.textContent);
-    }
 }

@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Http } from '@angular/http';
 import { Watchlist, WatchlistItem } from './watchlist.model';
+import { Quote } from '../common/quote.model';
 
 @Injectable()
 
@@ -63,8 +64,19 @@ export class WatchlistService {
 
   }
 
+  //Get the watchlists (modify later to take userid param)
   getWatchlists() {
     return this.watchlists;
+  }
+
+  //Update watchlist instruments with given quotes 
+  updateQuotes(qmap: Map<string, Quote>, wl: Watchlist) {
+    wl.instruments.forEach(stock => {
+      let quote = qmap.get(stock.instrument);
+      stock.lastPrice = quote.lastPrice;
+      stock.change = quote.change;
+      stock.percentChange = quote.percentChange;
+    });
   }
 
   //Save a watchlist, simulate http post delay  

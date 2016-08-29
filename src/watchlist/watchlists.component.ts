@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, ViewChild } from '@angular/core';
 import { WatchlistService } from '../common/watchlist.service';
 import { Watchlist } from '../common/watchlist.model';
 import { QuoteService } from '../common/quote.service';
@@ -22,6 +22,8 @@ export class WatchlistsComponent {
     isDeleting: boolean = false;
     msg: string = null;
 
+    @ViewChild('editName') editName;
+
     constructor(private watchlistService: WatchlistService,
         private quoteService: QuoteService) { }
 
@@ -33,11 +35,13 @@ export class WatchlistsComponent {
     addWatchlist() {
         this.editedItem = new Watchlist();
         this.isAdding = true;
+        setTimeout(() => this.editName.nativeElement.focus(), 100);
     }
 
     editWatchlist(wl) {
         this.editedItem = Object.assign(new Watchlist(), wl);
         this.isEditing = true;
+        setTimeout(() => this.editName.nativeElement.focus(), 100);
     }
 
     saveWatchlist() {

@@ -12,14 +12,15 @@ import { WatchlistComponent } from './watchlist/watchlist.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { WatchlistService } from './common/watchlist.service';
 import { QuoteService } from './common/quote.service';
+import { SignDirective } from './common/sign.directive';
 
-//chart test
-import {ChartTestComponent} from './dashboard/chart.test';
+//chart component
+import { FPChartComponent } from './dashboard/fpchart.component';
 
 @NgModule({
     imports: [HttpModule, JsonpModule, BrowserModule, FormsModule],
-    declarations: [AppComponent, NavbarComponent, CHART_DIRECTIVES, 
-                    WatchlistsComponent, WatchlistComponent, DashboardComponent, ChartTestComponent],
+    declarations: [AppComponent, NavbarComponent, CHART_DIRECTIVES, SignDirective,
+                    WatchlistsComponent, WatchlistComponent, DashboardComponent, FPChartComponent],
     providers: [WatchlistService, QuoteService],
     bootstrap: [AppComponent]
 })

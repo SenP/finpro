@@ -54,7 +54,6 @@ System.register(['@angular/core', '@angular/http', 'rxjs/Rx', 'rxjs/add/operator
                 // Remove instrument from the quotes map
                 QuoteService.prototype.deregister = function (stock) {
                     this.quotesMap.delete(stock);
-                    console.log(this.quotesMap);
                 };
                 ;
                 // Clear the quotes map
@@ -90,15 +89,15 @@ System.register(['@angular/core', '@angular/http', 'rxjs/Rx', 'rxjs/add/operator
                         });
                     }
                 };
-                // Update the quotes map with the new quote values from API (called from refreshQuotes method above)
+                // Update the quotes map with the new quote values from API (called from refreshQuotes method)
                 QuoteService.prototype.updateQuotes = function (newquotes) {
                     var _this = this;
                     newquotes.forEach(function (newquote) {
                         var stock = _this.quotesMap.get(newquote.symbol);
                         if (stock) {
-                            stock.lastPrice = parseFloat(newquote.LastTradePriceOnly) * (Math.random() + 0.5);
-                            stock.change = parseFloat(newquote.Change) * (Math.random() - 0.5);
-                            stock.percentChange = parseFloat(newquote.ChangeinPercent) * (Math.random() - 0.5);
+                            stock.lastPrice = parseFloat(newquote.LastTradePriceOnly); // * (Math.random() + 0.5);
+                            stock.change = parseFloat(newquote.Change); // * (Math.random() - 0.5);
+                            stock.percentChange = parseFloat(newquote.ChangeinPercent); // * (Math.random() - 0.5);
                         }
                     });
                 };

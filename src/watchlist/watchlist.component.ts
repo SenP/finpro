@@ -1,6 +1,6 @@
 import { Observable, Subscription, Subject } from 'rxjs/Rx';
 import 'rxjs/add/operator/map';
-import { Component, OnChanges, OnDestroy, Input } from '@angular/core';
+import { Component, OnChanges, OnDestroy, Input, ViewChild } from '@angular/core';
 import { WatchlistService } from '../common/watchlist.service';
 import { QuoteService } from '../common/quote.service';
 import { Watchlist, WatchlistItem } from '../common/watchlist.model';
@@ -30,6 +30,9 @@ export class WatchlistComponent implements OnChanges, OnDestroy {
     isDeleting: boolean = false;
     msg: string = null;
 
+    @ViewChild('editCode') editCode;
+    @ViewChild('editUnits') editUnits;
+
     constructor(private watchlistService: WatchlistService,
         private quoteService: QuoteService
     ) {
@@ -37,41 +40,33 @@ export class WatchlistComponent implements OnChanges, OnDestroy {
         this.qsub = this.quoteService
             .init()
             .subscribe(qmap => {
-                this.updateQuotes(qmap);
+                this.watchlistService.updateQuotes(qmap, this.watchlist);
             });
     }
 
     ngOnChanges() {
         this.isEditing = false;
-        this.isAdding = false;        
+        this.isAdding = false;
     }
 
     ngOnDestroy() {
         this.qsub.unsubscribe();
     }
 
-    updateQuotes(qmap: Map<string, Quote>) {
-        this.watchlist.instruments.forEach(stock => {
-            let quote = qmap.get(stock.instrument);
-            stock.lastPrice = quote.lastPrice;
-            stock.change = quote.change;
-            stock.percentChange = quote.percentChange;
-        });
-    }
-
     addWatchlistItem() {
         this.editedItem = new WatchlistItem();
         this.isAdding = true;
+        setTimeout(() => this.editCode.nativeElement.focus(), 100);
     }
 
     editWatchlistItem(stock) {
         this.editedItem = Object.assign(new WatchlistItem(), stock);
         this.isEditing = true;
+        setTimeout(() => this.editUnits.nativeElement.focus(), 100);
     }
 
     saveWatchlistItem() {
         this.msg = "Saving...please wait."
-console.log(this.watchlist);
         this.watchlistService
             .saveWatchlistItem(this.watchlist, this.editedItem)
             .then(res => {
@@ -88,7 +83,6 @@ console.log(this.watchlist);
     }
 
     deleteWatchlistItem(stock) {
-        console.log('deleting :' + JSON.stringify(stock));
         this.isDeleting = true;
         this.watchlistService
             .deleteWatchlistItem(this.watchlist, stock)

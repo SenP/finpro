@@ -50,21 +50,24 @@ System.register([], function(exports_1, context_1) {
                 }
                 Object.defineProperty(Watchlist.prototype, "totalMarketValue", {
                     get: function () {
-                        return this.instruments.reduce(function (totalV, wl) { return totalV + wl.marketValue; }, 0);
+                        var total = this.instruments.reduce(function (totalV, wl) { return totalV + wl.marketValue; }, 0);
+                        return parseFloat(total.toFixed(2));
                     },
                     enumerable: true,
                     configurable: true
                 });
                 Object.defineProperty(Watchlist.prototype, "totalDayChange", {
                     get: function () {
-                        return this.instruments.reduce(function (totalV, wl) { return totalV + wl.dayChange; }, 0);
+                        var total = this.instruments.reduce(function (totalV, wl) { return totalV + wl.dayChange; }, 0);
+                        return parseFloat(total.toFixed(2));
                     },
                     enumerable: true,
                     configurable: true
                 });
                 Object.defineProperty(Watchlist.prototype, "totalPnL", {
                     get: function () {
-                        return this.instruments.reduce(function (totalV, wl) { return totalV + wl.netPnL; }, 0);
+                        var total = this.instruments.reduce(function (totalV, wl) { return totalV + wl.netPnL; }, 0);
+                        return parseFloat(total.toFixed(2));
                     },
                     enumerable: true,
                     configurable: true

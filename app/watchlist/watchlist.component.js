@@ -41,7 +41,7 @@ System.register(['rxjs/add/operator/map', '@angular/core', '../common/watchlist.
                     this.qsub = this.quoteService
                         .init()
                         .subscribe(function (qmap) {
-                        _this.updateQuotes(qmap);
+                        _this.watchlistService.updateQuotes(qmap, _this.watchlist);
                     });
                 }
                 WatchlistComponent.prototype.ngOnChanges = function () {
@@ -51,26 +51,21 @@ System.register(['rxjs/add/operator/map', '@angular/core', '../common/watchlist.
                 WatchlistComponent.prototype.ngOnDestroy = function () {
                     this.qsub.unsubscribe();
                 };
-                WatchlistComponent.prototype.updateQuotes = function (qmap) {
-                    this.watchlist.instruments.forEach(function (stock) {
-                        var quote = qmap.get(stock.instrument);
-                        stock.lastPrice = quote.lastPrice;
-                        stock.change = quote.change;
-                        stock.percentChange = quote.percentChange;
-                    });
-                };
                 WatchlistComponent.prototype.addWatchlistItem = function () {
+                    var _this = this;
                     this.editedItem = new watchlist_model_1.WatchlistItem();
                     this.isAdding = true;
+                    setTimeout(function () { return _this.editCode.nativeElement.focus(); }, 100);
                 };
                 WatchlistComponent.prototype.editWatchlistItem = function (stock) {
+                    var _this = this;
                     this.editedItem = Object.assign(new watchlist_model_1.WatchlistItem(), stock);
                     this.isEditing = true;
+                    setTimeout(function () { return _this.editUnits.nativeElement.focus(); }, 100);
                 };
                 WatchlistComponent.prototype.saveWatchlistItem = function () {
                     var _this = this;
                     this.msg = "Saving...please wait.";
-                    console.log(this.watchlist);
                     this.watchlistService
                         .saveWatchlistItem(this.watchlist, this.editedItem)
                         .then(function (res) {
@@ -86,7 +81,6 @@ System.register(['rxjs/add/operator/map', '@angular/core', '../common/watchlist.
                 };
                 WatchlistComponent.prototype.deleteWatchlistItem = function (stock) {
                     var _this = this;
-                    console.log('deleting :' + JSON.stringify(stock));
                     this.isDeleting = true;
                     this.watchlistService
                         .deleteWatchlistItem(this.watchlist, stock)
@@ -105,6 +99,14 @@ System.register(['rxjs/add/operator/map', '@angular/core', '../common/watchlist.
                     core_1.Input(), 
                     __metadata('design:type', watchlist_model_1.Watchlist)
                 ], WatchlistComponent.prototype, "watchlist", void 0);
+                __decorate([
+                    core_1.ViewChild('editCode'), 
+                    __metadata('design:type', Object)
+                ], WatchlistComponent.prototype, "editCode", void 0);
+                __decorate([
+                    core_1.ViewChild('editUnits'), 
+                    __metadata('design:type', Object)
+                ], WatchlistComponent.prototype, "editUnits", void 0);
                 WatchlistComponent = __decorate([
                     core_1.Component({
                         selector: 'fp-watchlist',

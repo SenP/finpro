@@ -8,7 +8,12 @@ import { QuoteService } from './common/quote.service';
     selector: 'finpro-app',
     templateUrl: 'app/app.component.html',
     styles: [`
-           
+                .posLabel {
+                    color: green;
+                }
+                .negLabel {
+                    color: red;
+                }
         `]
 })
 

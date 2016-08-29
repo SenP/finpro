@@ -41,15 +41,18 @@ export class Watchlist {
     instruments: WatchlistItem[];
     
     get totalMarketValue(): number {
-        return this.instruments.reduce((totalV,wl) => totalV + wl.marketValue, 0);        
+        let total = this.instruments.reduce((totalV,wl) => totalV + wl.marketValue, 0);  
+        return parseFloat(total.toFixed(2));      
     }
 
     get totalDayChange(): number {
-        return this.instruments.reduce((totalV,wl) => totalV + wl.dayChange, 0);        
+        let total = this.instruments.reduce((totalV,wl) => totalV + wl.dayChange, 0);
+        return parseFloat(total.toFixed(2));            
     }
 
     get totalPnL(): number {
-        return this.instruments.reduce((totalV,wl) => totalV + wl.netPnL, 0);        
+        let total = this.instruments.reduce((totalV,wl) => totalV + wl.netPnL, 0);
+        return parseFloat(total.toFixed(2));        
     }
 
 }

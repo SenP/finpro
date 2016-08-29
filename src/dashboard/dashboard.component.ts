@@ -4,46 +4,25 @@ import { Watchlist, WatchlistItem } from '../common/watchlist.model';
 import { WatchlistService } from '../common/watchlist.service';
 import { QuoteService } from '../common/quote.service';
 import { Quote } from '../common/quote.model';
-import { ChartTestComponent } from './chart.test';
+import { FPChartComponent } from './fpchart.component';
 
 @Component({
     selector: 'fp-dashboard',
-    template: `
-                   <div class="panel panel-default">	
-	                <div class="panel-heading text-center">
-			            <h4> Portfolio Dashboard </h4>
-                    </div>
-                    <div class="panel-body">
-                        <div class="row">
-                            <div class="col-md-6 panel-footer">
-                                <chart-test #daychangeChart [config]="optionsDaychangeChart"></chart-test>
-                            </div>                            
-                            <div class="col-md-6 panel-footer">
-                                <chart-test #pnlChart [config]="optionsPnLChart"></chart-test>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6 panel-footer">
-                                <chart-test #marketvalueChart [config]="optionsMarketValueChart"></chart-test>
-                            </div>
-                            <div class="col-md-6 panel-footer">                                
-                            </div>
-                        </div>			        
-		            </div>
-                `,
-    styles: [`
-           
-        `]
+    templateUrl: 'app/dashboard/dashboard.component.html'     
 })
 
 export class DashboardComponent implements OnInit, AfterViewInit {
 
     @Input() watchlists: Watchlist[] = [];
-    @ViewChild('daychangeChart') daychangeChart: ChartTestComponent;
-    @ViewChild('marketvalueChart') marketvalueChart: ChartTestComponent;
-    @ViewChild('pnlChart') pnlChart: ChartTestComponent;
-    
+    @ViewChild('daychangeChart') daychangeChart: FPChartComponent;
+    @ViewChild('marketvalueChart') marketvalueChart: FPChartComponent;
+    @ViewChild('pnlChart') pnlChart: FPChartComponent;
+
+    //Subscription to quote service
     qsub: Subscription;
+
+    //Chart option objects
+    optionsBaseChart;
     optionsDaychangeChart;
     optionsPnLChart;
     optionsMarketValueChart;
@@ -56,7 +35,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     }
 
     tooltipMarketvalue = function () {
-        return '<b>' + this.x + '<b> <br>Market Value: ' + '<b>$ ' + this.y + '</b>';
+        return '<b>' + this.key + '<b> <br>Market Value: ' + '<b>$ ' + this.y + '</b>';
     }
 
     tooltipNetpnl = function () {
@@ -68,31 +47,98 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     ) { }
 
     ngOnInit() {
-        this.qsub = this.quoteService
-            .init()
-            .sampleTime(5000)
-            .subscribe(qmap => {
-                this.updateQuotes(qmap);
-                //this.renderCharts();
-            });
-
+        //register all instruments with quote service
         this.watchlists.forEach(wl => {
             wl.instruments.forEach(stock => {
                 this.quoteService.register(stock.instrument);
             });
 
-            this.renderCharts();
+            //subscribe to quote publisher,  update quotes once and render charts
+            this.qsub = this.quoteService
+                .init()
+                .take(1)
+                .subscribe(qmap => {
+                    this.updateQuotes(qmap);
+                    this.renderCharts();
+                });
 
         });
-
     }
 
     ngAfterViewInit() {
-        console.log(this.daychangeChart);
+        console.log('in dashboard after view init');
+        //subscribe to quote publisher and update quotes at specified interval
+        this.qsub = this.quoteService
+            .init()
+            //.sampleTime(5000)
+            .subscribe(qmap => {
+                this.updateQuotes(qmap);
+            });
     }
 
     renderCharts() {
-        this.chartData = this.getChartData();
+        this.setChartData();
+        this.setChartOptions();
+    }
+
+    updateQuotes(qmap: Map<string, Quote>) {
+        let idx = 0;
+        this.watchlists.forEach(wl => {
+            //update the watchlist with new quotes
+            this.watchlistService.updateQuotes(qmap, wl);
+            //update the charts with new values
+            this.daychangeChart.updateData(idx, wl.totalDayChange);
+            this.marketvalueChart.updateData(idx, wl.totalMarketValue);
+            this.pnlChart.updateData(idx, wl.totalPnL);
+            //go to next watchlist
+            idx += 1;
+        });
+    }
+
+    setChartData() {
+        let portfolioDaychange, portfolioPnL, portfolioValue = 0;
+        let chartData = {
+            dataLabels: [],
+            marketValues: [],
+            pnlValues: [],
+            daychangeValues: [],
+            portfolioValue: 0,
+            portfolioPnL: 0,
+            portfolioDaychange: 0
+        };
+
+        this.watchlists.forEach(wl => {
+            chartData.dataLabels.push(wl.name);
+
+            chartData.marketValues.push([wl.name, wl.totalMarketValue]);
+            chartData.pnlValues.push(wl.totalPnL);
+            chartData.daychangeValues.push(wl.totalDayChange);
+
+            chartData.portfolioValue += wl.totalMarketValue;
+            chartData.portfolioPnL += wl.totalPnL;
+            chartData.portfolioDaychange += wl.totalDayChange;
+        });
+        console.log(chartData);
+        this.chartData = chartData;
+    }
+
+    setChartOptions() {
+        this.optionsBaseChart = {            
+            xAxis: {
+                categories: this.chartData.dataLabels
+            },
+            yAxis: {
+                title: {
+                    text: null
+                }
+            },
+            legend: {
+                enabled: false
+            },
+            credits: {
+                enabled: false
+            }
+        };
 
         this.optionsPnLChart = {
             chart: {
@@ -102,22 +148,8 @@ export class DashboardComponent implements OnInit, AfterViewInit {
             title: {
                 text: 'Net P/L by Watchlist'
             },
-            xAxis: {
-                categories: this.chartData.dataLabels
-            },
-            yAxis: {
-                title: {
-                    text: null
-                }
-            },
             tooltip: {
                 formatter: this.tooltipNetpnl
-            },
-            legend: {
-                enabled: false
-            },
-            credits: {
-                enabled: false
             },
             series: [{
                 data: this.chartData.pnlValues,
@@ -125,6 +157,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
                 negativeColor: 'red'
             }]
         };
+        this.optionsPnLChart = Object.assign({}, this.optionsBaseChart, this.optionsPnLChart);
 
         this.optionsDaychangeChart = {
             chart: {
@@ -134,22 +167,8 @@ export class DashboardComponent implements OnInit, AfterViewInit {
             title: {
                 text: 'Day Change by Watchlist'
             },
-            xAxis: {
-                categories: this.chartData.dataLabels
-            },
-            yAxis: {
-                title: {
-                    text: null
-                }
-            },
             tooltip: {
                 formatter: this.tooltipDaychange
-            },
-            legend: {
-                enabled: false
-            },
-            credits: {
-                enabled: false
             },
             series: [{
                 data: this.chartData.daychangeValues,
@@ -157,6 +176,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
                 negativeColor: 'red'
             }]
         };
+        this.optionsDaychangeChart = Object.assign({}, this.optionsBaseChart, this.optionsDaychangeChart);
 
         this.optionsMarketValueChart = {
             chart: {
@@ -166,14 +186,6 @@ export class DashboardComponent implements OnInit, AfterViewInit {
             title: {
                 text: 'Market Value by Watchlist'
             },
-            xAxis: {
-                categories: this.chartData.dataLabels
-            },
-            yAxis: {
-                title: {
-                    text: null
-                }
-            },
             plotOptions: {
                 pie: {
                     innerSize: '50%'
@@ -182,62 +194,10 @@ export class DashboardComponent implements OnInit, AfterViewInit {
             tooltip: {
                 formatter: this.tooltipMarketvalue
             },
-            legend: {
-                enabled: false
-            },
-            credits: {
-                enabled: false
-            },
             series: [{
                 data: this.chartData.marketValues
             }]
         };
+        this.optionsMarketValueChart = Object.assign({}, this.optionsBaseChart, this.optionsMarketValueChart);
     }
-
-    updateQuotes(qmap: Map<string, Quote>) {
-        console.log(qmap);
-        let idx = 0;
-        this.watchlists.forEach(wl => {
-            wl.instruments.forEach(stock => {
-                let quote = qmap.get(stock.instrument);
-                stock.lastPrice = quote.lastPrice;
-                stock.change = quote.change;
-                stock.percentChange = quote.percentChange;
-            });
-            //update the charts with latest quote values
-            this.daychangeChart.updateData(idx, parseFloat(wl.totalDayChange.toFixed(2)));
-            this.marketvalueChart.updateData(idx, parseFloat(wl.totalMarketValue.toFixed(2)));
-            this.pnlChart.updateData(idx, parseFloat(wl.totalPnL.toFixed(2)));
-            //go to next watchlist
-            idx += 1;
-        });
-    }
-
-    getChartData() {
-        let portfolioDaychange, portfolioPnL, portfolioValue = 0;
-        let chartData = {
-            dataLabels: [],
-            marketValues: [],
-            pnlValues: [],
-            daychangeValues: []
-        };
-
-        this.watchlists.forEach(wl => {
-            chartData.dataLabels.push(wl.name);
-            let mv = parseFloat(wl.totalMarketValue.toFixed(2));
-            let pnl = parseFloat(wl.totalPnL.toFixed(2));
-            let dc = parseFloat(wl.totalDayChange.toFixed(2));
-
-            chartData.marketValues.push(mv);
-            chartData.pnlValues.push(pnl);
-            chartData.daychangeValues.push(dc);
-
-            portfolioValue += mv;
-            portfolioPnL += pnl;
-            portfolioDaychange += dc;
-        });
-        console.log(chartData);
-        return chartData;
-    }
-
 }

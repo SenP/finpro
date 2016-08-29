@@ -1,4 +1,4 @@
-System.register(['@angular/core', '@angular/platform-browser', '@angular/http', '@angular/forms', 'angular2-highcharts', './app.component', './navbar/navbar.component', './watchlist/watchlists.component', './watchlist/watchlist.component', './dashboard/dashboard.component', './common/watchlist.service', './common/quote.service', './dashboard/chart.test'], function(exports_1, context_1) {
+System.register(['@angular/core', '@angular/platform-browser', '@angular/http', '@angular/forms', 'angular2-highcharts', './app.component', './navbar/navbar.component', './watchlist/watchlists.component', './watchlist/watchlist.component', './dashboard/dashboard.component', './common/watchlist.service', './common/quote.service', './common/sign.directive', './dashboard/fpchart.component'], function(exports_1, context_1) {
     "use strict";
     var __moduleName = context_1 && context_1.id;
     var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
@@ -10,7 +10,7 @@ System.register(['@angular/core', '@angular/platform-browser', '@angular/http', 
     var __metadata = (this && this.__metadata) || function (k, v) {
         if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
     };
-    var core_1, platform_browser_1, http_1, forms_1, angular2_highcharts_1, app_component_1, navbar_component_1, watchlists_component_1, watchlist_component_1, dashboard_component_1, watchlist_service_1, quote_service_1, chart_test_1;
+    var core_1, platform_browser_1, http_1, forms_1, angular2_highcharts_1, app_component_1, navbar_component_1, watchlists_component_1, watchlist_component_1, dashboard_component_1, watchlist_service_1, quote_service_1, sign_directive_1, fpchart_component_1;
     var AppModule;
     return {
         setters:[
@@ -50,8 +50,11 @@ System.register(['@angular/core', '@angular/platform-browser', '@angular/http', 
             function (quote_service_1_1) {
                 quote_service_1 = quote_service_1_1;
             },
-            function (chart_test_1_1) {
-                chart_test_1 = chart_test_1_1;
+            function (sign_directive_1_1) {
+                sign_directive_1 = sign_directive_1_1;
+            },
+            function (fpchart_component_1_1) {
+                fpchart_component_1 = fpchart_component_1_1;
             }],
         execute: function() {
             AppModule = (function () {
@@ -60,8 +63,8 @@ System.register(['@angular/core', '@angular/platform-browser', '@angular/http', 
                 AppModule = __decorate([
                     core_1.NgModule({
                         imports: [http_1.HttpModule, http_1.JsonpModule, platform_browser_1.BrowserModule, forms_1.FormsModule],
-                        declarations: [app_component_1.AppComponent, navbar_component_1.NavbarComponent, angular2_highcharts_1.CHART_DIRECTIVES,
-                            watchlists_component_1.WatchlistsComponent, watchlist_component_1.WatchlistComponent, dashboard_component_1.DashboardComponent, chart_test_1.ChartTestComponent],
+                        declarations: [app_component_1.AppComponent, navbar_component_1.NavbarComponent, angular2_highcharts_1.CHART_DIRECTIVES, sign_directive_1.SignDirective,
+                            watchlists_component_1.WatchlistsComponent, watchlist_component_1.WatchlistComponent, dashboard_component_1.DashboardComponent, fpchart_component_1.FPChartComponent],
                         providers: [watchlist_service_1.WatchlistService, quote_service_1.QuoteService],
                         bootstrap: [app_component_1.AppComponent]
                     }), 
