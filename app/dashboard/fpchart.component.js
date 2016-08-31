@@ -28,13 +28,8 @@ System.register(['@angular/core', 'angular2-highcharts'], function(exports_1, co
                 FPChartComponent.prototype.saveInstance = function (chartInstance) {
                     this.chart = chartInstance;
                 };
-                FPChartComponent.prototype.ngAfterViewInit = function () {
-                    console.log('in FPChartComponent after view init');
-                };
                 FPChartComponent.prototype.updateData = function (idx, newVal) {
                     var _this = this;
-                    // console.log('idx: ' + idx);
-                    // console.log('newVal: ' + newVal);
                     if (this.chart) {
                         var oldVal = this.chart.series[0].data[idx].y;
                         if (newVal !== oldVal) {

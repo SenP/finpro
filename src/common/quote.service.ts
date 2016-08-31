@@ -10,8 +10,7 @@ import { WatchlistItem } from './watchlist.model';
 
 export class QuoteService {
 
-    //private base_url = 'https://query.yahooapis.com/v1/public/yql';
-    private base_url = 'https://developer.yahoo.com/yql/console'; 
+    private base_url = 'http://finance.google.com/finance/info';
 
     private quoteScheduler: Observable<number>;
     quotePublisher: Subject<any>;
@@ -20,30 +19,30 @@ export class QuoteService {
     constructor(private jsonp: Jsonp, private http: Http) {
         this.quotesMap = new Map();
         this.quotePublisher = new Subject();
+    }
 
-        this.quoteScheduler = Observable.timer(0, 3000);
+    // Initialize the scheduler, Return the quotes publisher subject to the subscriber
+    init(refInterval) {
+
+        this.quoteScheduler = Observable.timer(0, refInterval);
+
         this.quoteScheduler
             .subscribe(
             () => this.refreshQuotes()
             );
-    }
-
-    // Return the quotes publisher subject to the subscriber
-    init() {
         return this.quotePublisher;
     }
 
     // Add instrument to the quotes map
-    register(stock) {
-        if (!this.quotesMap.get(stock)) {
-            this.quotesMap.set(stock, new Quote());
-            console.log(this.quotesMap, stock);
+    register(stock, exchg) {
+        if (!this.quotesMap.get(exchg + ':' + stock)) {
+            this.quotesMap.set(exchg + ':' + stock, new Quote());
         }
     };
 
     // Remove instrument from the quotes map
-    deregister(stock) {
-        this.quotesMap.delete(stock);
+    deregister(stock, exchg) {
+        this.quotesMap.delete(exchg + ':' + stock);
     };
 
     // Clear the quotes map
@@ -54,29 +53,25 @@ export class QuoteService {
     // Refresh the quotes map with latest quotes from API
     refreshQuotes() {
         if (this.quotesMap.size > 0) {
-            var stockcodes = '';
-
+            let stockcodes = '';
+            
+            //create stock codes list
             this.quotesMap.forEach((value, key) => {
-                stockcodes += "'" + key + "',";
+                stockcodes += key + ',';
+
             });
-            stockcodes = stockcodes.slice(0, stockcodes.length - 1);
-
-            let query = `select * from yahoo.finance.quotes where symbol in (${stockcodes})`;
-            const env = 'http://datatables.org/alltables.env';
-
             let params = new URLSearchParams();
-            params.set('q', query);
+
+            params.set('client', 'ig');
+            params.set('q', stockcodes);
             params.set('format', 'json');
-            params.set('diagnostics', 'true');
-            params.set('env', env);
             params.set('callback', 'JSONP_CALLBACK');
 
             this.jsonp
                 .get(this.base_url, { search: params })
                 .map(response => response.json())
-                .subscribe(response => {
-                    let newquotes = response.query.count > 1 ? response.query.results.quote : [response.query.results.quote];
-                    this.updateQuotes(newquotes);
+                .subscribe(newquotes => {
+                    this.updateQuotesMap(newquotes);
                     // Publish new quotes
                     this.quotePublisher.next(this.quotesMap);
                 });
@@ -84,17 +79,16 @@ export class QuoteService {
     }
 
     // Update the quotes map with the new quote values from API (called from refreshQuotes method)
-    updateQuotes(newquotes) {
+    updateQuotesMap(newquotes) {
         newquotes.forEach(newquote => {
-            let stock = this.quotesMap.get(newquote.symbol);
-            if (stock) {
-                stock.lastPrice = parseFloat(newquote.LastTradePriceOnly);// + (Math.random() - 0.5);
-                stock.change = parseFloat(newquote.Change);// + (Math.random() - 0.5);
-                stock.percentChange = parseFloat(newquote.ChangeinPercent);// + (Math.random() - 0.5);
+            let quote = this.quotesMap.get(newquote.e + ':' + newquote.t);
+            if (quote) {
+                quote.lastPrice = parseFloat((newquote.l).replace(',', '')); // + (Math.random() - 0.5);
+                quote.change = parseFloat((newquote.c).replace(',', '')); // + (Math.random() - 0.5);
+                quote.percentChange = parseFloat(newquote.cp); // + (Math.random() - 0.5);
             }
         });
     };
-
 
 }
 

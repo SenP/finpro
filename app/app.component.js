@@ -31,7 +31,19 @@ System.register(['@angular/core', './common/watchlist.service', './common/quote.
                     this.watchlists = [];
                 }
                 AppComponent.prototype.ngOnInit = function () {
+                    var _this = this;
                     this.watchlists = this.watchlistService.getWatchlists();
+                    //register all instruments with quote service
+                    this.watchlists.forEach(function (wl) {
+                        wl.instruments.forEach(function (stock) {
+                            _this.quoteService.register(stock.instrument, stock.exchange);
+                        });
+                    });
+                    this.qsub = this.quoteService
+                        .init(15000)
+                        .subscribe(function (qmap) {
+                        _this.watchlistService.updateQuotes(qmap);
+                    });
                 };
                 AppComponent.prototype.onSelect = function (wl) {
                     this.selectedWatchlist = wl;

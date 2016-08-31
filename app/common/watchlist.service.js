@@ -1,4 +1,4 @@
-System.register(['@angular/core', './watchlist.model'], function(exports_1, context_1) {
+System.register(['@angular/core', './watchlist.model', '../common/quote.service'], function(exports_1, context_1) {
     "use strict";
     var __moduleName = context_1 && context_1.id;
     var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
@@ -10,7 +10,7 @@ System.register(['@angular/core', './watchlist.model'], function(exports_1, cont
     var __metadata = (this && this.__metadata) || function (k, v) {
         if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
     };
-    var core_1, watchlist_model_1;
+    var core_1, watchlist_model_1, quote_service_1;
     var WatchlistService;
     return {
         setters:[
@@ -19,73 +19,81 @@ System.register(['@angular/core', './watchlist.model'], function(exports_1, cont
             },
             function (watchlist_model_1_1) {
                 watchlist_model_1 = watchlist_model_1_1;
+            },
+            function (quote_service_1_1) {
+                quote_service_1 = quote_service_1_1;
             }],
         execute: function() {
             WatchlistService = (function () {
-                function WatchlistService() {
+                function WatchlistService(quoteService) {
+                    this.quoteService = quoteService;
                     this.watchlists = [];
                     //1st
                     this.watchlists.push(Object.assign(new watchlist_model_1.Watchlist(), {
                         id: 1,
-                        name: 'tech',
+                        name: 'US',
                         description: "technology stocks",
                         owner: 'sk',
                         instruments: []
                     }));
                     this.watchlists[0].instruments.push(Object.assign(new watchlist_model_1.WatchlistItem(), {
                         instrument: 'GOOG',
-                        industry: 'tech',
+                        exchange: 'NASDAQ',
                         unitsOwned: 100,
                         avgPrice: 50
                     }));
                     //2nd
                     this.watchlists.push(Object.assign(new watchlist_model_1.Watchlist(), {
                         id: 2,
-                        name: 'retail',
-                        description: "retail stocks",
+                        name: 'UK',
+                        description: "UK stocks",
                         owner: 'sk',
                         instruments: []
                     }));
                     this.watchlists[1].instruments.push(Object.assign(new watchlist_model_1.WatchlistItem(), {
-                        instrument: 'ESU16.CME',
-                        industry: 'retail',
-                        unitsOwned: 200,
-                        avgPrice: 50
+                        instrument: 'AZN',
+                        exchange: 'LON',
+                        unitsOwned: 20,
+                        avgPrice: 5000
                     }));
                     //3rd
                     this.watchlists.push(Object.assign(new watchlist_model_1.Watchlist(), {
                         id: 3,
-                        name: 'london',
-                        description: "london stocks",
+                        name: 'India',
+                        description: "Indian stocks",
                         owner: 'sk',
                         instruments: []
                     }));
                     this.watchlists[2].instruments.push(Object.assign(new watchlist_model_1.WatchlistItem(), {
-                        instrument: 'AZN.L',
-                        industry: 'pharma',
-                        unitsOwned: 10,
-                        avgPrice: 5000
+                        instrument: 'INFY',
+                        exchange: 'NSE',
+                        unitsOwned: 100,
+                        avgPrice: 1000
                     }));
                     this.watchlists[2].instruments.push(Object.assign(new watchlist_model_1.WatchlistItem(), {
-                        instrument: 'AV.L',
-                        industry: 'insurance',
+                        instrument: 'RELIANCE',
+                        exchange: 'NSE',
                         unitsOwned: 100,
-                        avgPrice: 400
+                        avgPrice: 900
                     }));
                 }
                 //Get the watchlists (modify later to take userid param)
                 WatchlistService.prototype.getWatchlists = function () {
-                    localStorage.setItem("watchlists", JSON.stringify(this.watchlists));
-                    console.log(localStorage.getItem("watchlists"));
+                    // localStorage.setItem("watchlists", JSON.stringify(this.watchlists));
+                    // console.log(localStorage.getItem("watchlists"));
                     return this.watchlists;
                 };
                 //Update watchlist instruments with given quotes 
-                WatchlistService.prototype.updateQuotes = function (qmap, wl) {
-                    wl.instruments.forEach(function (stock) {
-                        var quote = qmap.get(stock.instrument);
-                        stock.lastPrice = quote.lastPrice;
-                        stock.change = quote.change;
-                        stock.percentChange = quote.percentChange;
+                WatchlistService.prototype.updateQuotes = function (qmap) {
+                    this.watchlists.forEach(function (wl) {
+                        wl.instruments.forEach(function (stock) {
+                            var quote = qmap.get(stock.exchange + ':' + stock.instrument);
+                            if (quote) {
+                                stock.lastPrice = quote.lastPrice || 0;
+                                stock.change = quote.change || 0;
+                                stock.percentChange = quote.percentChange || 0;
+                            }
+                        });
                     });
                 };
                 //Save a watchlist, simulate http post delay  
@@ -141,10 +149,12 @@ System.register(['@angular/core', './watchlist.model'], function(exports_1, cont
                     }
                     else {
                         wl.instruments.push(Object.assign(new watchlist_model_1.WatchlistItem(), wlItem));
+                        this.quoteService.register(wlItem.instrument, wlItem.exchange);
                         data = wl.instruments[wl.instruments.length - 1];
                     }
                     return { status: "success", data: data };
                 };
+                //simulate http delete of watchlist
                 WatchlistService.prototype.deleteWatchlist = function (wlist) {
                     var _this = this;
                     var p = new Promise(function (resolve) { return setTimeout(function () {
@@ -154,10 +164,17 @@ System.register(['@angular/core', './watchlist.model'], function(exports_1, cont
                 };
                 //remove the selected watchlist
                 WatchlistService.prototype.doRemoveWatchlist = function (wlist) {
+                    var _this = this;
                     var i = this.watchlists.findIndex(function (w) { return w.id === wlist.id; });
                     var ret = null;
                     if (i !== -1) {
                         this.watchlists.splice(i, 1);
+                        //deregister instrument from quote service
+                        if (wlist.instruments.length > 0) {
+                            wlist.instruments.forEach(function (ins) {
+                                _this.quoteService.deregister(ins.instrument, ins.exchange);
+                            });
+                        }
                     }
                     return { status: "success", data: wlist };
                 };
@@ -175,12 +192,13 @@ System.register(['@angular/core', './watchlist.model'], function(exports_1, cont
                     var ret = null;
                     if (i !== -1) {
                         wl.instruments.splice(i, 1);
+                        this.quoteService.deregister(wlItem.instrument, wlItem.exchange);
                     }
                     return { status: "success", data: wlItem };
                 };
                 WatchlistService = __decorate([
                     core_1.Injectable(), 
-                    __metadata('design:paramtypes', [])
+                    __metadata('design:paramtypes', [quote_service_1.QuoteService])
                 ], WatchlistService);
                 return WatchlistService;
             }());

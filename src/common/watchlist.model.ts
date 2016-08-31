@@ -1,6 +1,6 @@
 export class WatchlistItem {
     instrument: string;
-    industry: string;
+    exchange: string;
     unitsOwned: number;
     avgPrice: number;
     lastPrice: number;

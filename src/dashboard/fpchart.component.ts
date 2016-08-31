@@ -27,13 +27,7 @@ export class FPChartComponent {
         this.chart = chartInstance;
     }
 
-    ngAfterViewInit() {
-        console.log('in FPChartComponent after view init');
-    }
-
     updateData(idx, newVal) {
-        // console.log('idx: ' + idx);
-        // console.log('newVal: ' + newVal);
         if (this.chart) {
             let oldVal = this.chart.series[0].data[idx].y;
             if (newVal !== oldVal) {

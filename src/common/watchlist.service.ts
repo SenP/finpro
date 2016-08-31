@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { Http } from '@angular/http';
 import { Watchlist, WatchlistItem } from './watchlist.model';
 import { Quote } from '../common/quote.model';
+import { QuoteService } from '../common/quote.service';
 
 @Injectable()
 
@@ -9,11 +10,11 @@ export class WatchlistService {
 
   private watchlists: Array<Watchlist> = [];
 
-  constructor() {
+  constructor(private quoteService: QuoteService) { 
     //1st
     this.watchlists.push(Object.assign(new Watchlist(), {
       id: 1,
-      name: 'tech',
+      name: 'US',
       description: "technology stocks",
       owner: 'sk',
       instruments: []
@@ -21,7 +22,7 @@ export class WatchlistService {
 
     this.watchlists[0].instruments.push(Object.assign(new WatchlistItem(), {
       instrument: 'GOOG',
-      industry: 'tech',
+      exchange: 'NASDAQ',
       unitsOwned: 100,
       avgPrice: 50
     }));
@@ -29,55 +30,59 @@ export class WatchlistService {
     //2nd
     this.watchlists.push(Object.assign(new Watchlist(), {
       id: 2,
-      name: 'retail',
-      description: "retail stocks",
+      name: 'UK',
+      description: "UK stocks",
       owner: 'sk',
       instruments: []
     }));
     this.watchlists[1].instruments.push(Object.assign(new WatchlistItem(), {
-      instrument: 'ESU16.CME',
-      industry: 'retail',
-      unitsOwned: 200,
-      avgPrice: 50
+      instrument: 'AZN',
+      exchange: 'LON',
+      unitsOwned: 20,
+      avgPrice: 5000
     }));
 
     //3rd
     this.watchlists.push(Object.assign(new Watchlist(), {
       id: 3,
-      name: 'london',
-      description: "london stocks",
+      name: 'India',
+      description: "Indian stocks",
       owner: 'sk',
       instruments: []
     }));
     this.watchlists[2].instruments.push(Object.assign(new WatchlistItem(), {
-      instrument: 'AZN.L',
-      industry: 'pharma',
-      unitsOwned: 10,
-      avgPrice: 5000
+      instrument: 'INFY',
+      exchange: 'NSE',
+      unitsOwned: 100,
+      avgPrice: 1000
     }));
     this.watchlists[2].instruments.push(Object.assign(new WatchlistItem(), {
-      instrument: 'AV.L',
-      industry: 'insurance',
+      instrument: 'RELIANCE',
+      exchange: 'NSE',
       unitsOwned: 100,
-      avgPrice: 400
+      avgPrice: 900
     }));
 
   }
 
   //Get the watchlists (modify later to take userid param)
   getWatchlists() {
-    localStorage.setItem("watchlists", JSON.stringify(this.watchlists));
-    console.log(localStorage.getItem("watchlists"));
+    // localStorage.setItem("watchlists", JSON.stringify(this.watchlists));
+    // console.log(localStorage.getItem("watchlists"));
     return this.watchlists;
   }
 
   //Update watchlist instruments with given quotes 
-  updateQuotes(qmap: Map<string, Quote>, wl: Watchlist) {
-    wl.instruments.forEach(stock => {
-      let quote = qmap.get(stock.instrument);
-      stock.lastPrice = quote.lastPrice;
-      stock.change = quote.change;
-      stock.percentChange = quote.percentChange;
+  updateQuotes(qmap: Map<string, Quote>) {
+    this.watchlists.forEach(wl => {
+      wl.instruments.forEach(stock => {
+        let quote = qmap.get(stock.exchange + ':' + stock.instrument);
+        if (quote) {
+          stock.lastPrice = quote.lastPrice || 0;
+          stock.change = quote.change || 0;
+          stock.percentChange = quote.percentChange || 0;
+        }
+      });
     });
   }
 
@@ -136,19 +141,21 @@ export class WatchlistService {
       return { status: "error", msg: "Can not have more than 30 stocks in a watchlist" };
     }
 
-    if (i !== -1) {
+    if (i !== -1) { //edit
       Object.assign(wl.instruments[i], wlItem);
       data = wl.instruments[i];
     }
-    else {
+    else { //create
       wl.instruments.push(Object.assign(new WatchlistItem(), wlItem));
+      this.quoteService.register(wlItem.instrument,wlItem.exchange);
       data = wl.instruments[wl.instruments.length - 1];
     }
 
     return { status: "success", data: data };
   }
 
-  deleteWatchlist(wlist) {
+  //simulate http delete of watchlist
+  deleteWatchlist(wlist: Watchlist) {
     let p = new Promise(resolve => setTimeout(() => {
       resolve(this.doRemoveWatchlist(wlist));
     }, 2000));
@@ -156,18 +163,23 @@ export class WatchlistService {
     return p;
   }
   //remove the selected watchlist
-  doRemoveWatchlist(wlist) {
+  doRemoveWatchlist(wlist: Watchlist) {
     let i = this.watchlists.findIndex(w => w.id === wlist.id);
     let ret = null;
 
     if (i !== -1) {
       this.watchlists.splice(i, 1);
+      //deregister instrument from quote service
+      if (wlist.instruments.length > 0) {
+        wlist.instruments.forEach(ins => {
+          this.quoteService.deregister(ins.instrument,ins.exchange);
+        })
+      }
     }
-
     return { status: "success", data: wlist };
   }
 
-  deleteWatchlistItem(wlist, wlItem) {
+  deleteWatchlistItem(wlist: Watchlist, wlItem: WatchlistItem) {
     let p = new Promise(resolve => setTimeout(() => {
       resolve(this.doRemoveWatchlistItem(wlist, wlItem));
     }, 2000));
@@ -175,15 +187,15 @@ export class WatchlistService {
     return p;
   }
   //remove the selected watchlist item
-  doRemoveWatchlistItem(wlist, wlItem) {
+  doRemoveWatchlistItem(wlist: Watchlist, wlItem: WatchlistItem) {
     let wl = this.watchlists[this.watchlists.findIndex(w => w.id === wlist.id)];
     let i = wl.instruments.findIndex(ins => ins.instrument === wlItem.instrument);
     let ret = null;
 
     if (i !== -1) {
       wl.instruments.splice(i, 1);
+      this.quoteService.deregister(wlItem.instrument,wlItem.exchange);
     }
-
     return { status: "success", data: wlItem };
   }
 }

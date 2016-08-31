@@ -1,4 +1,4 @@
-System.register(['@angular/core', '../common/watchlist.service', '../common/quote.service', './fpchart.component'], function(exports_1, context_1) {
+System.register(['rxjs/Rx', '@angular/core', '../common/watchlist.service', './fpchart.component'], function(exports_1, context_1) {
     "use strict";
     var __moduleName = context_1 && context_1.id;
     var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
@@ -10,85 +10,60 @@ System.register(['@angular/core', '../common/watchlist.service', '../common/quot
     var __metadata = (this && this.__metadata) || function (k, v) {
         if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
     };
-    var core_1, watchlist_service_1, quote_service_1, fpchart_component_1;
+    var Rx_1, core_1, watchlist_service_1, fpchart_component_1;
     var DashboardComponent;
     return {
         setters:[
+            function (Rx_1_1) {
+                Rx_1 = Rx_1_1;
+            },
             function (core_1_1) {
                 core_1 = core_1_1;
             },
             function (watchlist_service_1_1) {
                 watchlist_service_1 = watchlist_service_1_1;
             },
-            function (quote_service_1_1) {
-                quote_service_1 = quote_service_1_1;
-            },
             function (fpchart_component_1_1) {
                 fpchart_component_1 = fpchart_component_1_1;
             }],
         execute: function() {
             DashboardComponent = (function () {
-                function DashboardComponent(watchlistService, quoteService) {
+                function DashboardComponent(watchlistService) {
                     this.watchlistService = watchlistService;
-                    this.quoteService = quoteService;
                     this.watchlists = [];
-                    //portfolio values
+                    // Portfolio values
                     this.portfolioDaychange = 0;
                     this.portfolioPnL = 0;
                     this.portfolioValue = 0;
-                    this.chartStyle = { "font-family": "Lato,'Helvetica Neue', Helvetica, Arial,'sans-serif'" };
-                    this.tooltipDaychange = function () {
-                        return '<b>' + this.x + '<b> <br>Day Change: ' + '<b>$ ' + this.y + '</b>';
-                    };
-                    this.tooltipMarketvalue = function () {
-                        return '<b>' + this.key + '<b> <br>Market Value: ' + '<b>$ ' + this.y + '</b>';
-                    };
-                    this.tooltipNetpnl = function () {
-                        return '<b>' + this.x + '<b> <br>Net P/L: ' + '<b>$ ' + this.y + '</b>';
-                    };
                 }
                 DashboardComponent.prototype.ngOnInit = function () {
                     var _this = this;
-                    //register all instruments with quote service
-                    this.watchlists.forEach(function (wl) {
-                        wl.instruments.forEach(function (stock) {
-                            _this.quoteService.register(stock.instrument);
-                        });
-                        //subscribe to quote publisher,  update quotes once and render charts
-                        _this.quoteService
-                            .init()
-                            .take(1)
-                            .subscribe(function (qmap) {
-                            _this.updateQuotes(qmap);
-                            _this.renderCharts();
-                        });
-                    });
+                    //create refresh scheduler,  update dashboard and render charts
+                    this.refreshScheduler = Rx_1.Observable.timer(0, 5000);
+                    setTimeout(function () {
+                        _this.renderCharts();
+                        _this.updateDashboard();
+                    }, 400);
                 };
                 DashboardComponent.prototype.ngAfterViewInit = function () {
                     var _this = this;
-                    //subscribe to quote publisher and update quotes at specified interval
-                    this.qsub = this.quoteService
-                        .init()
-                        .subscribe(function (qmap) {
-                        _this.updateQuotes(qmap);
+                    //subscribe to refresh scheduler and update dashboard at specified interval
+                    this.refreshScheduler
+                        .subscribe(function () {
+                        _this.updateDashboard();
                     });
-                };
-                DashboardComponent.prototype.ngOnDestroy = function () {
-                    this.qsub.unsubscribe();
                 };
                 DashboardComponent.prototype.renderCharts = function () {
                     this.setChartData();
                     this.setChartOptions();
                 };
-                DashboardComponent.prototype.updateQuotes = function (qmap) {
+                DashboardComponent.prototype.updateDashboard = function () {
                     var _this = this;
                     var idx = 0;
                     var portfolioValue = 0;
                     var portfolioPnL = 0;
                     var portfolioDaychange = 0;
                     this.watchlists.forEach(function (wl) {
-                        //update the watchlist with new quotes
-                        _this.watchlistService.updateQuotes(qmap, wl);
                         //update the charts with new values
                         _this.daychangeChart.updateData(idx, wl.totalDayChange);
                         _this.marketvalueChart.updateData(idx, wl.totalMarketValue);
@@ -122,11 +97,20 @@ System.register(['@angular/core', '../common/watchlist.service', '../common/quot
                         _this.portfolioPnL += wl.totalPnL;
                         _this.portfolioDaychange += wl.totalDayChange;
                     });
-                    console.log(chartData);
                     this.chartData = chartData;
                 };
                 DashboardComponent.prototype.setChartOptions = function () {
-                    this.optionsBaseChart = {
+                    var tooltipDaychange = function () {
+                        return '<b>' + this.key + '<b> <br>Day Change: ' + '<b>$ ' + this.y + '</b>';
+                    };
+                    var tooltipMarketvalue = function () {
+                        return '<b>' + this.key + '<b> <br>Market Value: ' + '<b>$ ' + this.y + '</b>';
+                    };
+                    var tooltipNetpnl = function () {
+                        return '<b>' + this.x + '<b> <br>Net P/L: ' + '<b>$ ' + this.y + '</b>';
+                    };
+                    var chartStyle = { "font-family": "Lato,'Helvetica Neue', Helvetica, Arial,'sans-serif'" };
+                    var optionsBaseChart = {
                         xAxis: {
                             categories: this.chartData.dataLabels
                         },
@@ -145,13 +129,13 @@ System.register(['@angular/core', '../common/watchlist.service', '../common/quot
                     this.optionsPnLChart = {
                         chart: {
                             type: 'column',
-                            style: this.chartStyle
+                            style: chartStyle
                         },
                         title: {
                             text: 'Net P/L by Watchlist'
                         },
                         tooltip: {
-                            formatter: this.tooltipNetpnl
+                            formatter: tooltipNetpnl
                         },
                         series: [{
                                 data: this.chartData.pnlValues,
@@ -159,17 +143,17 @@ System.register(['@angular/core', '../common/watchlist.service', '../common/quot
                                 negativeColor: 'red'
                             }]
                     };
-                    this.optionsPnLChart = Object.assign({}, this.optionsBaseChart, this.optionsPnLChart);
+                    this.optionsPnLChart = Object.assign({}, optionsBaseChart, this.optionsPnLChart);
                     this.optionsDaychangeChart = {
                         chart: {
                             type: 'column',
-                            style: this.chartStyle
+                            style: chartStyle
                         },
                         title: {
                             text: 'Day Change by Watchlist'
                         },
                         tooltip: {
-                            formatter: this.tooltipDaychange
+                            formatter: tooltipDaychange
                         },
                         series: [{
                                 data: this.chartData.daychangeValues,
@@ -177,11 +161,11 @@ System.register(['@angular/core', '../common/watchlist.service', '../common/quot
                                 negativeColor: 'red'
                             }]
                     };
-                    this.optionsDaychangeChart = Object.assign({}, this.optionsBaseChart, this.optionsDaychangeChart);
+                    this.optionsDaychangeChart = Object.assign({}, optionsBaseChart, this.optionsDaychangeChart);
                     this.optionsMarketValueChart = {
                         chart: {
                             type: 'pie',
-                            style: this.chartStyle
+                            style: chartStyle
                         },
                         title: {
                             text: 'Market Value by Watchlist'
@@ -192,13 +176,13 @@ System.register(['@angular/core', '../common/watchlist.service', '../common/quot
                             }
                         },
                         tooltip: {
-                            formatter: this.tooltipMarketvalue
+                            formatter: tooltipMarketvalue
                         },
                         series: [{
                                 data: this.chartData.marketValues
                             }]
                     };
-                    this.optionsMarketValueChart = Object.assign({}, this.optionsBaseChart, this.optionsMarketValueChart);
+                    this.optionsMarketValueChart = Object.assign({}, optionsBaseChart, this.optionsMarketValueChart);
                 };
                 __decorate([
                     core_1.Input(), 
@@ -221,7 +205,7 @@ System.register(['@angular/core', '../common/watchlist.service', '../common/quot
                         selector: 'fp-dashboard',
                         templateUrl: 'app/dashboard/dashboard.component.html'
                     }), 
-                    __metadata('design:paramtypes', [watchlist_service_1.WatchlistService, quote_service_1.QuoteService])
+                    __metadata('design:paramtypes', [watchlist_service_1.WatchlistService])
                 ], DashboardComponent);
                 return DashboardComponent;
             }());

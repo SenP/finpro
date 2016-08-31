@@ -1,11 +1,6 @@
-import { Observable, Subscription, Subject } from 'rxjs/Rx';
-import 'rxjs/add/operator/map';
-import { Component, OnChanges, OnDestroy, Input, ViewChild } from '@angular/core';
+import { Component, OnChanges, Input, ViewChild } from '@angular/core';
 import { WatchlistService } from '../common/watchlist.service';
-import { QuoteService } from '../common/quote.service';
 import { Watchlist, WatchlistItem } from '../common/watchlist.model';
-import { Quote } from '../common/quote.model';
-
 
 @Component({
     selector: 'fp-watchlist',
@@ -20,48 +15,36 @@ import { Quote } from '../common/quote.model';
                 }
                 .msg {
                     font-style: italic;
-                    font-size: 1.25em;
+                    font-size: 1.2em;
                 }
             `]
 })
 
-export class WatchlistComponent implements OnChanges, OnDestroy {
+export class WatchlistComponent implements OnChanges {
 
     @Input() watchlist: Watchlist = null;
-    qsub: Subscription;
+
     editedItem: WatchlistItem;
     isEditing: boolean = false;
     isAdding: boolean = false;
     isDeleting: boolean = false;
+
     msg: string = "";
     msgClass: string;
     msgClasses = {
         error: " msg text-center text-danger",
         info: "msg text-center text-info"
     }
-    
-   
 
     @ViewChild('editCode') editCode;
     @ViewChild('editUnits') editUnits;
 
-    constructor(private watchlistService: WatchlistService,
-        private quoteService: QuoteService
-    ) {
-        this.qsub = this.quoteService
-            .init()
-            .subscribe(qmap => {
-                this.watchlistService.updateQuotes(qmap, this.watchlist);
-            });
-    }
+    constructor(private watchlistService: WatchlistService) { }
 
     ngOnChanges() {
         this.isEditing = false;
         this.isAdding = false;
-    }
-
-    ngOnDestroy() {
-        this.qsub.unsubscribe();
+        this.isDeleting = false;
     }
 
     addWatchlistItem() {
@@ -88,19 +71,10 @@ export class WatchlistComponent implements OnChanges, OnDestroy {
             this.watchlistService
                 .saveWatchlistItem(this.watchlist, this.editedItem)
                 .then(res => {
-                    this.quoteService.register(this.editedItem.instrument);
-                    this.cancelEdit();
+                    this.actionDone();
                 });
         }
-    }
-
-    cancelEdit() {
-        this.editedItem = null;
-        this.isEditing = false;
-        this.isAdding = false;
-        this.msg = "";
-        this.msgClass = "";
-    }
+    }    
 
     //validate edited watchlist item
     validateWatchlistItem() {
@@ -152,12 +126,18 @@ export class WatchlistComponent implements OnChanges, OnDestroy {
             this.watchlistService
                 .deleteWatchlistItem(this.watchlist, stock)
                 .then(res => {
-                    this.quoteService.deregister(stock.instrument);
-                    this.isDeleting = false;
-                    this.msg = "";
-                    this.msgClass = "";
+                    this.actionDone();
                 });
         }
+    }
+
+    actionDone() {
+        this.editedItem = null;
+        this.isEditing = false;
+        this.isAdding = false;
+        this.isDeleting = false;
+        this.msg = "";
+        this.msgClass = "";
     }
 
 }

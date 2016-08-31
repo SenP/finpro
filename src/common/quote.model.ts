@@ -1,5 +1,6 @@
 export class Quote {
-    instrument: string;    
+    instrument: string;
+    exchange: string;   
     lastPrice: number;
     change: number;
     percentChange: number;    

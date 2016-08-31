@@ -1,4 +1,4 @@
-System.register(['@angular/core', '../common/watchlist.service', '../common/watchlist.model', '../common/quote.service'], function(exports_1, context_1) {
+System.register(['@angular/core', '../common/watchlist.service', '../common/watchlist.model'], function(exports_1, context_1) {
     "use strict";
     var __moduleName = context_1 && context_1.id;
     var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
@@ -10,7 +10,7 @@ System.register(['@angular/core', '../common/watchlist.service', '../common/watc
     var __metadata = (this && this.__metadata) || function (k, v) {
         if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
     };
-    var core_1, watchlist_service_1, watchlist_model_1, quote_service_1;
+    var core_1, watchlist_service_1, watchlist_model_1;
     var WatchlistsComponent;
     return {
         setters:[
@@ -22,15 +22,11 @@ System.register(['@angular/core', '../common/watchlist.service', '../common/watc
             },
             function (watchlist_model_1_1) {
                 watchlist_model_1 = watchlist_model_1_1;
-            },
-            function (quote_service_1_1) {
-                quote_service_1 = quote_service_1_1;
             }],
         execute: function() {
             WatchlistsComponent = (function () {
-                function WatchlistsComponent(watchlistService, quoteService) {
+                function WatchlistsComponent(watchlistService) {
                     this.watchlistService = watchlistService;
-                    this.quoteService = quoteService;
                     this.watchlists = [];
                     this.changeSelection = new core_1.EventEmitter();
                     this.isEditing = false;
@@ -70,17 +66,10 @@ System.register(['@angular/core', '../common/watchlist.service', '../common/watc
                             _this.msgClass = _this.msgClasses.error;
                         }
                         else {
-                            _this.cancelEdit();
+                            _this.actionDone();
                             _this.onChangeSelection(res.data);
                         }
                     });
-                };
-                WatchlistsComponent.prototype.cancelEdit = function () {
-                    this.editedItem = null;
-                    this.isEditing = false;
-                    this.isAdding = false;
-                    this.msg = "";
-                    this.msgClass = "";
                 };
                 WatchlistsComponent.prototype.deleteWatchlist = function (wlist) {
                     var _this = this;
@@ -90,20 +79,20 @@ System.register(['@angular/core', '../common/watchlist.service', '../common/watc
                     this.watchlistService
                         .deleteWatchlist(wlist)
                         .then(function (res) {
-                        //deregister instrument from quote service
-                        if (wlist.instruments.length > 0) {
-                            wlist.instruments.forEach(function (ins) {
-                                _this.quoteService.deregister(ins.instrument);
-                            });
-                        }
-                        _this.isDeleting = false;
-                        _this.msg = "";
-                        _this.msgClass = "";
+                        _this.actionDone();
                         //reset watchlist selection if currently selected watchlist is the one being deleted
                         if (_this.selectedWatchlist === wlist) {
                             _this.onChangeSelection(null);
                         }
                     });
+                };
+                WatchlistsComponent.prototype.actionDone = function () {
+                    this.editedItem = null;
+                    this.isEditing = false;
+                    this.isAdding = false;
+                    this.isDeleting = false;
+                    this.msg = "";
+                    this.msgClass = "";
                 };
                 __decorate([
                     core_1.Input(), 
@@ -121,9 +110,9 @@ System.register(['@angular/core', '../common/watchlist.service', '../common/watc
                     core_1.Component({
                         selector: 'fp-watchlists',
                         templateUrl: 'app/watchlist/watchlists.component.html',
-                        styles: ["      \n            .msg {\n                    font-style: italic;\n                    font-size: 1.25em;\n                }   \n            \n        "]
+                        styles: ["      \n            .msg {\n                    font-style: italic;\n                    font-size: 1.25em;\n                }   \n        "]
                     }), 
-                    __metadata('design:paramtypes', [watchlist_service_1.WatchlistService, quote_service_1.QuoteService])
+                    __metadata('design:paramtypes', [watchlist_service_1.WatchlistService])
                 ], WatchlistsComponent);
                 return WatchlistsComponent;
             }());

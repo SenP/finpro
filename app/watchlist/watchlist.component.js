@@ -1,4 +1,4 @@
-System.register(['rxjs/add/operator/map', '@angular/core', '../common/watchlist.service', '../common/quote.service', '../common/watchlist.model'], function(exports_1, context_1) {
+System.register(['@angular/core', '../common/watchlist.service', '../common/watchlist.model'], function(exports_1, context_1) {
     "use strict";
     var __moduleName = context_1 && context_1.id;
     var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
@@ -10,29 +10,23 @@ System.register(['rxjs/add/operator/map', '@angular/core', '../common/watchlist.
     var __metadata = (this && this.__metadata) || function (k, v) {
         if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
     };
-    var core_1, watchlist_service_1, quote_service_1, watchlist_model_1;
+    var core_1, watchlist_service_1, watchlist_model_1;
     var WatchlistComponent;
     return {
         setters:[
-            function (_1) {},
             function (core_1_1) {
                 core_1 = core_1_1;
             },
             function (watchlist_service_1_1) {
                 watchlist_service_1 = watchlist_service_1_1;
             },
-            function (quote_service_1_1) {
-                quote_service_1 = quote_service_1_1;
-            },
             function (watchlist_model_1_1) {
                 watchlist_model_1 = watchlist_model_1_1;
             }],
         execute: function() {
             WatchlistComponent = (function () {
-                function WatchlistComponent(watchlistService, quoteService) {
-                    var _this = this;
+                function WatchlistComponent(watchlistService) {
                     this.watchlistService = watchlistService;
-                    this.quoteService = quoteService;
                     this.watchlist = null;
                     this.isEditing = false;
                     this.isAdding = false;
@@ -42,18 +36,11 @@ System.register(['rxjs/add/operator/map', '@angular/core', '../common/watchlist.
                         error: " msg text-center text-danger",
                         info: "msg text-center text-info"
                     };
-                    this.qsub = this.quoteService
-                        .init()
-                        .subscribe(function (qmap) {
-                        _this.watchlistService.updateQuotes(qmap, _this.watchlist);
-                    });
                 }
                 WatchlistComponent.prototype.ngOnChanges = function () {
                     this.isEditing = false;
                     this.isAdding = false;
-                };
-                WatchlistComponent.prototype.ngOnDestroy = function () {
-                    this.qsub.unsubscribe();
+                    this.isDeleting = false;
                 };
                 WatchlistComponent.prototype.addWatchlistItem = function () {
                     var _this = this;
@@ -80,17 +67,9 @@ System.register(['rxjs/add/operator/map', '@angular/core', '../common/watchlist.
                         this.watchlistService
                             .saveWatchlistItem(this.watchlist, this.editedItem)
                             .then(function (res) {
-                            _this.quoteService.register(_this.editedItem.instrument);
-                            _this.cancelEdit();
+                            _this.actionDone();
                         });
                     }
-                };
-                WatchlistComponent.prototype.cancelEdit = function () {
-                    this.editedItem = null;
-                    this.isEditing = false;
-                    this.isAdding = false;
-                    this.msg = "";
-                    this.msgClass = "";
                 };
                 //validate edited watchlist item
                 WatchlistComponent.prototype.validateWatchlistItem = function () {
@@ -140,12 +119,17 @@ System.register(['rxjs/add/operator/map', '@angular/core', '../common/watchlist.
                         this.watchlistService
                             .deleteWatchlistItem(this.watchlist, stock)
                             .then(function (res) {
-                            _this.quoteService.deregister(stock.instrument);
-                            _this.isDeleting = false;
-                            _this.msg = "";
-                            _this.msgClass = "";
+                            _this.actionDone();
                         });
                     }
+                };
+                WatchlistComponent.prototype.actionDone = function () {
+                    this.editedItem = null;
+                    this.isEditing = false;
+                    this.isAdding = false;
+                    this.isDeleting = false;
+                    this.msg = "";
+                    this.msgClass = "";
                 };
                 __decorate([
                     core_1.Input(), 
@@ -163,9 +147,9 @@ System.register(['rxjs/add/operator/map', '@angular/core', '../common/watchlist.
                     core_1.Component({
                         selector: 'fp-watchlist',
                         templateUrl: 'app/watchlist/watchlist.component.html',
-                        styles: ["           \n                .number-field {\n                    text-align: right\n                }\n\n                .panel-heading {\n                    font-size: 2em;\n                }\n                .msg {\n                    font-style: italic;\n                    font-size: 1.25em;\n                }\n            "]
+                        styles: ["           \n                .number-field {\n                    text-align: right\n                }\n\n                .panel-heading {\n                    font-size: 2em;\n                }\n                .msg {\n                    font-style: italic;\n                    font-size: 1.2em;\n                }\n            "]
                     }), 
-                    __metadata('design:paramtypes', [watchlist_service_1.WatchlistService, quote_service_1.QuoteService])
+                    __metadata('design:paramtypes', [watchlist_service_1.WatchlistService])
                 ], WatchlistComponent);
                 return WatchlistComponent;
             }());
