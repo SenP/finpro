@@ -37,7 +37,11 @@ System.register(['rxjs/add/operator/map', '@angular/core', '../common/watchlist.
                     this.isEditing = false;
                     this.isAdding = false;
                     this.isDeleting = false;
-                    this.msg = null;
+                    this.msg = "";
+                    this.msgClasses = {
+                        error: " msg text-center text-danger",
+                        info: "msg text-center text-info"
+                    };
                     this.qsub = this.quoteService
                         .init()
                         .subscribe(function (qmap) {
@@ -65,35 +69,83 @@ System.register(['rxjs/add/operator/map', '@angular/core', '../common/watchlist.
                 };
                 WatchlistComponent.prototype.saveWatchlistItem = function () {
                     var _this = this;
-                    this.msg = "Saving...please wait.";
-                    this.watchlistService
-                        .saveWatchlistItem(this.watchlist, this.editedItem)
-                        .then(function (res) {
-                        _this.quoteService.register(_this.editedItem.instrument);
-                        _this.cancelEdit();
-                    });
+                    var valid = this.validateWatchlistItem();
+                    if (valid.status === "error") {
+                        this.msg = valid.msg;
+                        this.msgClass = this.msgClasses.error;
+                    }
+                    else {
+                        this.msg = "Saving...please wait.";
+                        this.msgClass = this.msgClasses.info;
+                        this.watchlistService
+                            .saveWatchlistItem(this.watchlist, this.editedItem)
+                            .then(function (res) {
+                            _this.quoteService.register(_this.editedItem.instrument);
+                            _this.cancelEdit();
+                        });
+                    }
                 };
                 WatchlistComponent.prototype.cancelEdit = function () {
                     this.editedItem = null;
                     this.isEditing = false;
                     this.isAdding = false;
                     this.msg = "";
+                    this.msgClass = "";
+                };
+                //validate edited watchlist item
+                WatchlistComponent.prototype.validateWatchlistItem = function () {
+                    var wli = this.editedItem;
+                    var result = { status: "success", msg: "success" };
+                    //validate instrument
+                    if (wli.instrument.length < 1 || wli.instrument.length > 10) {
+                        result.status = "error";
+                        result.msg = "Stock code should be between 3 to 10 characters";
+                        return result;
+                    }
+                    if (this.isAdding && this.watchlist.instruments.findIndex(function (w) { return w.instrument === wli.instrument; }) !== -1) {
+                        result.status = "error";
+                        result.msg = "'" + wli.instrument + "' already exists in this watchlist";
+                        return result;
+                    }
+                    //validate quantity
+                    if (isNaN(wli.unitsOwned)) {
+                        result.status = "error";
+                        result.msg = "'Units owned' should be a number between 1 to 99,999,999,999";
+                        return result;
+                    }
+                    if (wli.unitsOwned < 1 || wli.unitsOwned > 99999999999) {
+                        result.status = "error";
+                        result.msg = "'Units owned' should be between 1 to 99,999,999,999";
+                        return result;
+                    }
+                    //validate avg price
+                    if (isNaN(wli.avgPrice)) {
+                        result.status = "error";
+                        result.msg = "'Avg buy price' should be a number";
+                        return result;
+                    }
+                    if (wli.avgPrice <= 0 || wli.avgPrice >= 10000) {
+                        result.status = "error";
+                        result.msg = "'Avg buy price' should be more than 0 and less than 10000";
+                        return result;
+                    }
+                    return result;
                 };
                 WatchlistComponent.prototype.deleteWatchlistItem = function (stock) {
                     var _this = this;
-                    this.isDeleting = true;
-                    this.watchlistService
-                        .deleteWatchlistItem(this.watchlist, stock)
-                        .then(function (res) {
-                        _this.quoteService.deregister(stock.instrument);
-                        _this.isDeleting = false;
-                    });
-                };
-                //utility method for getting font color based on positive/negative change
-                WatchlistComponent.prototype.getChangeColor = function (val) {
-                    if (!val || isNaN(val) || val === 0)
-                        return 'black';
-                    return (val > 0 ? 'green' : 'red');
+                    if (confirm('Delete ' + stock.instrument + ' from watchlist?')) {
+                        this.isDeleting = true;
+                        this.msg = "Deleting...please wait.";
+                        this.msgClass = this.msgClasses.info;
+                        this.watchlistService
+                            .deleteWatchlistItem(this.watchlist, stock)
+                            .then(function (res) {
+                            _this.quoteService.deregister(stock.instrument);
+                            _this.isDeleting = false;
+                            _this.msg = "";
+                            _this.msgClass = "";
+                        });
+                    }
                 };
                 __decorate([
                     core_1.Input(), 
@@ -111,7 +163,7 @@ System.register(['rxjs/add/operator/map', '@angular/core', '../common/watchlist.
                     core_1.Component({
                         selector: 'fp-watchlist',
                         templateUrl: 'app/watchlist/watchlist.component.html',
-                        styles: ["           \n                .number-field {\n                    text-align: right\n                }\n\n                .panel-heading {\n                    font-size: 2em;\n                }\n            "]
+                        styles: ["           \n                .number-field {\n                    text-align: right\n                }\n\n                .panel-heading {\n                    font-size: 2em;\n                }\n                .msg {\n                    font-style: italic;\n                    font-size: 1.25em;\n                }\n            "]
                     }), 
                     __metadata('design:paramtypes', [watchlist_service_1.WatchlistService, quote_service_1.QuoteService])
                 ], WatchlistComponent);

@@ -8,19 +8,19 @@
 				<span class="text-center"> <h5> Total Market Value </h5> </span>
 				<span class="text-center" [class.posLabel]="chartData?.portfolioValue > 0" 
 					[class.negLabel]="chartData?.portfolioValue < 0"> 
-					<h3> {{ chartData?.portfolioValue | currency:'USD':true:'1.2-2' }} </h3> </span>
+					<h3 sign> {{ portfolioValue | currency:'USD':true:'1.2-2' }} </h3> </span>
 			</div>
 			<div class="col-md-4">
 				<span class="text-center"> <h5> Net Profit/Loss </h5> </span>
 				<span class="text-center" [class.posLabel]="chartData?.portfolioPnL > 0" 
 					[class.negLabel]="chartData?.portfolioPnL < 0"> 
-					<h3> {{ chartData?.portfolioPnL | currency:'USD':true:'1.2-2' }} </h3> </span>
+					<h3 sign> {{ portfolioPnL | currency:'USD':true:'1.2-2' }} </h3> </span>
 			</div>
 			<div class="col-md-4">
 				<span class="text-center"> <h5> Total Day Change </h5> </span>
 				<span class="text-center" [class.posLabel]="chartData?.portfolioDaychange > 0" 
 					[class.negLabel]="chartData?.portfolioDaychange < 0"> 
-					<h3> {{ chartData?.portfolioDaychange | currency:'USD':true:'1.2-2' }} </h3> </span>
+					<h3 sign> {{ portfolioDaychange | currency:'USD':true:'1.2-2' }} </h3> </span>
 			</div>
 		</div>
 		<div class="row">

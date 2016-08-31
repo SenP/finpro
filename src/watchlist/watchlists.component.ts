@@ -6,7 +6,11 @@ import { QuoteService } from '../common/quote.service';
 @Component({
     selector: 'fp-watchlists',
     templateUrl: 'app/watchlist/watchlists.component.html',
-    styles: [`         
+    styles: [`      
+            .msg {
+                    font-style: italic;
+                    font-size: 1.25em;
+                }   
             
         `]
 })
@@ -21,6 +25,11 @@ export class WatchlistsComponent {
     isAdding: boolean = false;
     isDeleting: boolean = false;
     msg: string = null;
+    msgClass: string;
+    msgClasses = {
+        error: "msg text-danger",
+        info: "msg text-info"
+    }
 
     @ViewChild('editName') editName;
 
@@ -46,16 +55,17 @@ export class WatchlistsComponent {
 
     saveWatchlist() {
         this.msg = "Saving...please wait."
+        this.msgClass = this.msgClasses.info;
         this.watchlistService
             .saveWatchlist(this.editedItem)
             .then(res => {
-                console.log(res);                
                 if (res.status === "error") {
                     this.msg = res.msg;
+                    this.msgClass = this.msgClasses.error;
                 }
                 else {
-                this.cancelEdit();
-                this.onChangeSelection(res.data);
+                    this.cancelEdit();
+                    this.onChangeSelection(res.data);
                 }
             });
     }
@@ -65,11 +75,13 @@ export class WatchlistsComponent {
         this.isEditing = false;
         this.isAdding = false;
         this.msg = "";
+        this.msgClass = "";
     }
 
     deleteWatchlist(wlist) {
-        this.msg = "Deleting...please wait."
         this.isDeleting = true;
+        this.msg = "Deleting...please wait.";
+        this.msgClass = this.msgClasses.info;
         this.watchlistService
             .deleteWatchlist(wlist)
             .then(res => {
@@ -80,11 +92,12 @@ export class WatchlistsComponent {
                     })
                 }
                 this.isDeleting = false;
-                this.msg = "";                
+                this.msg = "";
+                this.msgClass = "";
                 //reset watchlist selection if currently selected watchlist is the one being deleted
                 if (this.selectedWatchlist === wlist) {
                     this.onChangeSelection(null);
-                }                
+                }
             });
     }
 }

@@ -6,12 +6,12 @@
 			<span class="btn btn-success btn-xs" (click)="addWatchlist()">
 				<i class="fa fa-plus" ></i>
 			</span>
-			<!--Display Edit button-->
-			<span *ngIf="selectedWatchlist" class="btn btn-warning btn-xs" (click)="editWatchlist(selectedWatchlist)">
+		<!--Display Edit button-->
+		<span *ngIf="selectedWatchlist" class="btn btn-warning btn-xs" (click)="editWatchlist(selectedWatchlist)">
 				<i class="fa fa-pencil-square-o"></i>
 			</span>
-			<!--Display Delete button-->
-			<span *ngIf="selectedWatchlist" class="btn btn-danger btn-xs" (click)="deleteWatchlist(selectedWatchlist)">
+		<!--Display Delete button-->
+		<span *ngIf="selectedWatchlist" class="btn btn-danger btn-xs" (click)="deleteWatchlist(selectedWatchlist)">
 				<i class="fa fa-trash-o"></i> 
 			</span>
 		</span>
@@ -25,21 +25,23 @@
 		<div *ngIf="isEditing || isAdding">
 			<form #f="ngForm" (ngSubmit)="saveWatchlist()" class="form">
 				<div class="form-group">
-					Name:
-					<input #editName type="text" name="name" class="form-control input-sm"
-							[(ngModel)]="editedItem.name" maxlength="15"
-							required>
+					<label> Name: </label>
+					<input #editName type="text" name="name" class="form-control input-sm" [(ngModel)]="editedItem.name"
+							maxlength="15" required>
 				</div>
 				<div class="form-group">
-					Description:
-					<input type="textarea" name="description" class="form-control input-sm"
-							[(ngModel)]="editedItem.description" maxlength="50">
+					<label> Description: </label>
+					<input type="textarea" name="description" class="form-control input-sm" [(ngModel)]="editedItem.description"
+							maxlength="50">
 				</div>
+				<br>
 				<button type="submit" class="btn btn-primary btn-sm" [disabled]="!f.valid">Save</button>
 				<button type="button" class="btn btn-danger btn-sm" (click)="cancelEdit()">Cancel</button>
 			</form>
 		</div>
-		<span> {{ msg }} </span>
+		<div *ngIf="msg" [class]="msgClass"> {{ msg }}
+			<button type="button" class="close" (click)="msg = null"><span>&times;</span></button>
+		</div>
 		<!--Display watchlists only if no operation is being performed-->
 		<div *ngIf="!isEditing && !isAdding && !isDeleting" class="list-group">
 			<div *ngFor="let w of watchlists">

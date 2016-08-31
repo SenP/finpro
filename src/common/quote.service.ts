@@ -10,14 +10,17 @@ import { WatchlistItem } from './watchlist.model';
 
 export class QuoteService {
 
-    private base_url = 'https://query.yahooapis.com/v1/public/yql';
+    //private base_url = 'https://query.yahooapis.com/v1/public/yql';
+    private base_url = 'https://developer.yahoo.com/yql/console'; 
+
     private quoteScheduler: Observable<number>;
     quotePublisher: Subject<any>;
     private quotesMap: Map<string, Quote>;
 
     constructor(private jsonp: Jsonp, private http: Http) {
-        this.quotesMap = new Map<string, Quote>();
+        this.quotesMap = new Map();
         this.quotePublisher = new Subject();
+
         this.quoteScheduler = Observable.timer(0, 3000);
         this.quoteScheduler
             .subscribe(
@@ -34,6 +37,7 @@ export class QuoteService {
     register(stock) {
         if (!this.quotesMap.get(stock)) {
             this.quotesMap.set(stock, new Quote());
+            console.log(this.quotesMap, stock);
         }
     };
 
@@ -84,9 +88,9 @@ export class QuoteService {
         newquotes.forEach(newquote => {
             let stock = this.quotesMap.get(newquote.symbol);
             if (stock) {
-                stock.lastPrice = parseFloat(newquote.LastTradePriceOnly); // * (Math.random() + 0.5);
-                stock.change = parseFloat(newquote.Change); // * (Math.random() - 0.5);
-                stock.percentChange = parseFloat(newquote.ChangeinPercent); // * (Math.random() - 0.5);
+                stock.lastPrice = parseFloat(newquote.LastTradePriceOnly);// + (Math.random() - 0.5);
+                stock.change = parseFloat(newquote.Change);// + (Math.random() - 0.5);
+                stock.percentChange = parseFloat(newquote.ChangeinPercent);// + (Math.random() - 0.5);
             }
         });
     };

@@ -33,7 +33,8 @@ System.register(['@angular/core', '@angular/http', 'rxjs/Rx', 'rxjs/add/operator
                     var _this = this;
                     this.jsonp = jsonp;
                     this.http = http;
-                    this.base_url = 'https://query.yahooapis.com/v1/public/yql';
+                    //private base_url = 'https://query.yahooapis.com/v1/public/yql';
+                    this.base_url = 'https://developer.yahoo.com/yql/console';
                     this.quotesMap = new Map();
                     this.quotePublisher = new Rx_1.Subject();
                     this.quoteScheduler = Rx_1.Observable.timer(0, 3000);
@@ -48,6 +49,7 @@ System.register(['@angular/core', '@angular/http', 'rxjs/Rx', 'rxjs/add/operator
                 QuoteService.prototype.register = function (stock) {
                     if (!this.quotesMap.get(stock)) {
                         this.quotesMap.set(stock, new quote_model_1.Quote());
+                        console.log(this.quotesMap, stock);
                     }
                 };
                 ;
@@ -95,9 +97,9 @@ System.register(['@angular/core', '@angular/http', 'rxjs/Rx', 'rxjs/add/operator
                     newquotes.forEach(function (newquote) {
                         var stock = _this.quotesMap.get(newquote.symbol);
                         if (stock) {
-                            stock.lastPrice = parseFloat(newquote.LastTradePriceOnly); // * (Math.random() + 0.5);
-                            stock.change = parseFloat(newquote.Change); // * (Math.random() - 0.5);
-                            stock.percentChange = parseFloat(newquote.ChangeinPercent); // * (Math.random() - 0.5);
+                            stock.lastPrice = parseFloat(newquote.LastTradePriceOnly); // + (Math.random() - 0.5);
+                            stock.change = parseFloat(newquote.Change); // + (Math.random() - 0.5);
+                            stock.percentChange = parseFloat(newquote.ChangeinPercent); // + (Math.random() - 0.5);
                         }
                     });
                 };

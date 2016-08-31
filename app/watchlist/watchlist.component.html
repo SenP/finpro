@@ -2,10 +2,11 @@
 	<!--Heading-->
 	<div class="panel-heading text-center">
 		<span> <h3> <strong> {{ watchlist?.name }} </strong> </h3> </span>
+		<span> <h5> {{ watchlist?.description }} </h5> </span>
 	</div>
 	<!--Body-->
 	<div class="panel-body table-responsive">
-		<div *ngIf="!isEditing && !isAdding">
+		<div *ngIf="!isEditing && !isAdding && !isDeleting">
 			<span class="btn btn-success btn-sm pull-right" (click)="addWatchlistItem()">
 				<i class="fa fa-plus" ></i>
 			</span>
@@ -20,24 +21,27 @@
 		<div *ngIf="isEditing || isAdding">
 			<form #f="ngForm" (ngSubmit)="saveWatchlistItem()" class="form-inline">
 				<div class="form-group">
-					Stock:
+					<label> Stock: </label>
 					<input #editCode type="text" name="instrument" class="form-control input-sm" [(ngModel)]="editedItem.instrument"
 							[readonly]="isEditing" required> &nbsp; &nbsp;
 				</div>
 				<div class="form-group">
-					Units Owned:
+					<label> Units Owned: </label>
 					<input #editUnits type="text" name="unitsOwned" class="form-control input-sm" [(ngModel)]="editedItem.unitsOwned"
 							required> &nbsp;
 				</div>
 				<div class="form-group">
-					Avg. Price: $
+					<label> Avg. Buy Price: $ </label>
 					<input type="text" name="avgPrice" class="form-control input-sm" [(ngModel)]="editedItem.avgPrice"
 							required>
 				</div>
+				&nbsp;&nbsp;
 				<button type="submit" class="btn btn-primary btn-sm" [disabled]="!f.valid">Save</button>
 				<button type="button" class="btn btn-danger btn-sm" (click)="cancelEdit()">Cancel</button>
-				<span> {{ msg }} </span>
 			</form>
+		</div>
+		<div *ngIf="msg" [class]="msgClass"> {{ msg }}
+			<button type="button" class="close" (click)="msg = null"><span>&times;</span></button>
 		</div>
 	</div>
 	<!--Display the table-->
@@ -54,7 +58,7 @@
 				<th class="number-field">Market Value($)</th>
 				<th class="number-field">Day Change ($) </th>
 				<th class="number-field">Net P/L ($) </th>
-				<th colspan="2" *ngIf="!isEditing && !isAdding"> Actions </th>
+				<th colspan="2" *ngIf="!isEditing && !isAdding && !isDeleting"> Actions </th>
 			</tr>
 		</thead>
 		<!--Display the stocks in the watchlist-->
@@ -70,19 +74,19 @@
 				<td class="number-field" sign> {{ stock.dayChange | number:'1.2-2' }} </td>
 				<td class="number-field " sign> {{ stock.netPnL | number:'1.2-2' }} </td>
 				<!--Display Edit and Delete buttons-->
-				<td *ngIf="!isEditing && !isAdding ">
+				<td *ngIf="!isEditing && !isAdding && !isDeleting">
 					<a href="# " class="btn btn-warning btn-xs " (click)="editWatchlistItem(stock) ">
 						<i class="fa fa-pencil-square-o "></i>
 					</a>
 				</td>
-				<td *ngIf="!isEditing && !isAdding ">
+				<td *ngIf="!isEditing && !isAdding && !isDeleting">
 					<a href="# " class="btn btn-danger btn-xs " (click)="deleteWatchlistItem(stock) ">
 						<i class="fa fa-trash-o "></i>
 					</a>
 				</td>
 			</tr>
 			<tr *ngIf="watchlist?.instruments.length> 1" class="active">
-				<td>Totals </td>
+				<td><strong>Totals </strong></td>
 				<td class="number-field"> {{ watchlist.totalUnitsOwned }}</td>
 				<td> </td>
 				<td> </td>
@@ -92,6 +96,8 @@
 				</td>
 				<td class="number-field"><strong sign> {{ watchlist.totalDayChange | currency:'USD':true:'1.2-2' }} </strong></td>
 				<td class="number-field"><strong sign> {{ watchlist.totalPnL | currency:'USD':true:'1.2-2' }} </strong></td>
+				<td></td>
+				<td></td>
 			</tr>
 		</tbody>
 	</table>

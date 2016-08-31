@@ -75,6 +75,8 @@ System.register(['@angular/core', './watchlist.model'], function(exports_1, cont
                 }
                 //Get the watchlists (modify later to take userid param)
                 WatchlistService.prototype.getWatchlists = function () {
+                    localStorage.setItem("watchlists", JSON.stringify(this.watchlists));
+                    console.log(localStorage.getItem("watchlists"));
                     return this.watchlists;
                 };
                 //Update watchlist instruments with given quotes 
@@ -100,7 +102,10 @@ System.register(['@angular/core', './watchlist.model'], function(exports_1, cont
                     var data = null;
                     var dupName = this.watchlists.findIndex(function (wl) { return (wl.id !== wlist.id) && (wl.name === wlist.name); });
                     if (dupName !== -1) {
-                        return { status: "error", msg: "duplicate name" };
+                        return { status: "error", msg: "Duplicate watchlist name" };
+                    }
+                    if (i === -1 && this.watchlists.length === 10) {
+                        return { status: "error", msg: "Can not create more than 10 watchlists" };
                     }
                     if (i !== -1) {
                         Object.assign(this.watchlists[i], wlist);
@@ -125,9 +130,11 @@ System.register(['@angular/core', './watchlist.model'], function(exports_1, cont
                 //utility: save the edited/new watchlist item
                 WatchlistService.prototype.doSaveWatchlistItem = function (wlist, wlItem) {
                     var wl = this.watchlists[this.watchlists.findIndex(function (w) { return w.id === wlist.id; })];
-                    console.log(wl);
                     var i = wl.instruments.findIndex(function (ins) { return ins.instrument === wlItem.instrument; });
                     var data = null;
+                    if (i === -1 && wl.instruments.length === 30) {
+                        return { status: "error", msg: "Can not have more than 30 stocks in a watchlist" };
+                    }
                     if (i !== -1) {
                         Object.assign(wl.instruments[i], wlItem);
                         data = wl.instruments[i];

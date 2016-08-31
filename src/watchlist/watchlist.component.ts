@@ -6,6 +6,7 @@ import { QuoteService } from '../common/quote.service';
 import { Watchlist, WatchlistItem } from '../common/watchlist.model';
 import { Quote } from '../common/quote.model';
 
+
 @Component({
     selector: 'fp-watchlist',
     templateUrl: 'app/watchlist/watchlist.component.html',
@@ -16,6 +17,10 @@ import { Quote } from '../common/quote.model';
 
                 .panel-heading {
                     font-size: 2em;
+                }
+                .msg {
+                    font-style: italic;
+                    font-size: 1.25em;
                 }
             `]
 })
@@ -28,7 +33,14 @@ export class WatchlistComponent implements OnChanges, OnDestroy {
     isEditing: boolean = false;
     isAdding: boolean = false;
     isDeleting: boolean = false;
-    msg: string = null;
+    msg: string = "";
+    msgClass: string;
+    msgClasses = {
+        error: " msg text-center text-danger",
+        info: "msg text-center text-info"
+    }
+    
+   
 
     @ViewChild('editCode') editCode;
     @ViewChild('editUnits') editUnits;
@@ -36,7 +48,6 @@ export class WatchlistComponent implements OnChanges, OnDestroy {
     constructor(private watchlistService: WatchlistService,
         private quoteService: QuoteService
     ) {
-
         this.qsub = this.quoteService
             .init()
             .subscribe(qmap => {
@@ -66,13 +77,21 @@ export class WatchlistComponent implements OnChanges, OnDestroy {
     }
 
     saveWatchlistItem() {
-        this.msg = "Saving...please wait."
-        this.watchlistService
-            .saveWatchlistItem(this.watchlist, this.editedItem)
-            .then(res => {
-                this.quoteService.register(this.editedItem.instrument);
-                this.cancelEdit();
-            });
+        let valid = this.validateWatchlistItem();
+        if (valid.status === "error") {
+            this.msg = valid.msg;
+            this.msgClass = this.msgClasses.error;
+        }
+        else {
+            this.msg = "Saving...please wait.";
+            this.msgClass = this.msgClasses.info;
+            this.watchlistService
+                .saveWatchlistItem(this.watchlist, this.editedItem)
+                .then(res => {
+                    this.quoteService.register(this.editedItem.instrument);
+                    this.cancelEdit();
+                });
+        }
     }
 
     cancelEdit() {
@@ -80,20 +99,65 @@ export class WatchlistComponent implements OnChanges, OnDestroy {
         this.isEditing = false;
         this.isAdding = false;
         this.msg = "";
+        this.msgClass = "";
+    }
+
+    //validate edited watchlist item
+    validateWatchlistItem() {
+        let wli = this.editedItem;
+        let result = { status: "success", msg: "success" };
+
+        //validate instrument
+        if (wli.instrument.length < 1 || wli.instrument.length > 10) {
+            result.status = "error";
+            result.msg = "Stock code should be between 3 to 10 characters";
+            return result;
+        }
+        if (this.isAdding && this.watchlist.instruments.findIndex(w => w.instrument === wli.instrument) !== -1) {
+            result.status = "error";
+            result.msg = "'" + wli.instrument + "' already exists in this watchlist";
+            return result;
+        }
+        //validate quantity
+        if (isNaN(wli.unitsOwned)) {
+            result.status = "error";
+            result.msg = "'Units owned' should be a number between 1 to 99,999,999,999";
+            return result;
+        }
+        if (wli.unitsOwned < 1 || wli.unitsOwned > 99999999999) {
+            result.status = "error";
+            result.msg = "'Units owned' should be between 1 to 99,999,999,999";
+            return result;
+        }
+        //validate avg price
+        if (isNaN(wli.avgPrice)) {
+            result.status = "error";
+            result.msg = "'Avg buy price' should be a number";
+            return result;
+        }
+        if (wli.avgPrice <= 0 || wli.avgPrice >= 10000) {
+            result.status = "error";
+            result.msg = "'Avg buy price' should be more than 0 and less than 10000";
+            return result;
+        }
+        return result;
     }
 
     deleteWatchlistItem(stock) {
-        this.isDeleting = true;
-        this.watchlistService
-            .deleteWatchlistItem(this.watchlist, stock)
-            .then(res => {
-                this.quoteService.deregister(stock.instrument);
-                this.isDeleting = false;
-            });
+        if (confirm('Delete ' + stock.instrument + ' from watchlist?')) {
+            this.isDeleting = true;
+            this.msg = "Deleting...please wait.";
+            this.msgClass = this.msgClasses.info;
+
+            this.watchlistService
+                .deleteWatchlistItem(this.watchlist, stock)
+                .then(res => {
+                    this.quoteService.deregister(stock.instrument);
+                    this.isDeleting = false;
+                    this.msg = "";
+                    this.msgClass = "";
+                });
+        }
     }
-    //utility method for getting font color based on positive/negative change
-    getChangeColor(val: number) {
-        if (!val || isNaN(val) || val === 0) return 'black';
-        return (val > 0 ? 'green' : 'red');
-    }
+
 }

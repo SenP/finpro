@@ -37,6 +37,10 @@ System.register(['@angular/core', '../common/watchlist.service', '../common/watc
                     this.isAdding = false;
                     this.isDeleting = false;
                     this.msg = null;
+                    this.msgClasses = {
+                        error: "msg text-danger",
+                        info: "msg text-info"
+                    };
                 }
                 WatchlistsComponent.prototype.onChangeSelection = function (wl) {
                     this.selectedWatchlist = wl;
@@ -57,12 +61,13 @@ System.register(['@angular/core', '../common/watchlist.service', '../common/watc
                 WatchlistsComponent.prototype.saveWatchlist = function () {
                     var _this = this;
                     this.msg = "Saving...please wait.";
+                    this.msgClass = this.msgClasses.info;
                     this.watchlistService
                         .saveWatchlist(this.editedItem)
                         .then(function (res) {
-                        console.log(res);
                         if (res.status === "error") {
                             _this.msg = res.msg;
+                            _this.msgClass = _this.msgClasses.error;
                         }
                         else {
                             _this.cancelEdit();
@@ -75,11 +80,13 @@ System.register(['@angular/core', '../common/watchlist.service', '../common/watc
                     this.isEditing = false;
                     this.isAdding = false;
                     this.msg = "";
+                    this.msgClass = "";
                 };
                 WatchlistsComponent.prototype.deleteWatchlist = function (wlist) {
                     var _this = this;
-                    this.msg = "Deleting...please wait.";
                     this.isDeleting = true;
+                    this.msg = "Deleting...please wait.";
+                    this.msgClass = this.msgClasses.info;
                     this.watchlistService
                         .deleteWatchlist(wlist)
                         .then(function (res) {
@@ -91,6 +98,7 @@ System.register(['@angular/core', '../common/watchlist.service', '../common/watc
                         }
                         _this.isDeleting = false;
                         _this.msg = "";
+                        _this.msgClass = "";
                         //reset watchlist selection if currently selected watchlist is the one being deleted
                         if (_this.selectedWatchlist === wlist) {
                             _this.onChangeSelection(null);
@@ -113,7 +121,7 @@ System.register(['@angular/core', '../common/watchlist.service', '../common/watc
                     core_1.Component({
                         selector: 'fp-watchlists',
                         templateUrl: 'app/watchlist/watchlists.component.html',
-                        styles: ["         \n            \n        "]
+                        styles: ["      \n            .msg {\n                    font-style: italic;\n                    font-size: 1.25em;\n                }   \n            \n        "]
                     }), 
                     __metadata('design:paramtypes', [watchlist_service_1.WatchlistService, quote_service_1.QuoteService])
                 ], WatchlistsComponent);

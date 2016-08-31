@@ -25,14 +25,22 @@ System.register(['@angular/core'], function(exports_1, context_1) {
                 }
                 SignDirective.prototype.ngAfterViewChecked = function () {
                     var text = this.elementRef.nativeElement.innerHTML;
-                    var val = parseFloat(text.match(/[\d\.\-eE+]/g).join(""));
-                    if (isNaN(val) || val === 0)
-                        return;
+                    this.renderer.setElementStyle(this.elementRef.nativeElement, 'color', this.getColor(text));
+                };
+                SignDirective.prototype.getColor = function (txt) {
+                    if (!txt)
+                        return 'black'; //no text
+                    var numarr = txt.match(/[\d\.\-eE+]/g);
+                    if (!numarr)
+                        return 'black'; //no numbers in text
+                    var val = parseFloat(numarr.join(""));
+                    if (isNaN(val) || val == 0)
+                        return 'black'; //not a number
                     if (val < 0) {
-                        this.renderer.setElementStyle(this.elementRef.nativeElement, 'color', 'red');
+                        return 'red';
                     }
                     else {
-                        this.renderer.setElementStyle(this.elementRef.nativeElement, 'color', 'green');
+                        return 'green';
                     }
                 };
                 SignDirective = __decorate([

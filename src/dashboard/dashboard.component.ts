@@ -1,5 +1,5 @@
 import { Observable, Subscription, Subject } from 'rxjs/Rx';
-import { Component, Input, OnInit, ViewChild, ViewChildren, AfterViewInit } from '@angular/core';
+import { Component, Input, OnInit, ViewChild, ViewChildren, AfterViewInit, OnDestroy } from '@angular/core';
 import { Watchlist, WatchlistItem } from '../common/watchlist.model';
 import { WatchlistService } from '../common/watchlist.service';
 import { QuoteService } from '../common/quote.service';
@@ -8,10 +8,10 @@ import { FPChartComponent } from './fpchart.component';
 
 @Component({
     selector: 'fp-dashboard',
-    templateUrl: 'app/dashboard/dashboard.component.html'     
+    templateUrl: 'app/dashboard/dashboard.component.html'
 })
 
-export class DashboardComponent implements OnInit, AfterViewInit {
+export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
 
     @Input() watchlists: Watchlist[] = [];
     @ViewChild('daychangeChart') daychangeChart: FPChartComponent;
@@ -27,6 +27,10 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     optionsPnLChart;
     optionsMarketValueChart;
     chartData;
+    //portfolio values
+    portfolioDaychange = 0;
+    portfolioPnL = 0;
+    portfolioValue = 0;
 
     chartStyle = { "font-family": "Lato,'Helvetica Neue', Helvetica, Arial,'sans-serif'" };
 
@@ -54,7 +58,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
             });
 
             //subscribe to quote publisher,  update quotes once and render charts
-            this.qsub = this.quoteService
+            this.quoteService
                 .init()
                 .take(1)
                 .subscribe(qmap => {
@@ -66,7 +70,6 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     }
 
     ngAfterViewInit() {
-        console.log('in dashboard after view init');
         //subscribe to quote publisher and update quotes at specified interval
         this.qsub = this.quoteService
             .init()
@@ -76,6 +79,10 @@ export class DashboardComponent implements OnInit, AfterViewInit {
             });
     }
 
+    ngOnDestroy() {
+        this.qsub.unsubscribe();
+    }
+
     renderCharts() {
         this.setChartData();
         this.setChartOptions();
@@ -83,6 +90,10 @@ export class DashboardComponent implements OnInit, AfterViewInit {
 
     updateQuotes(qmap: Map<string, Quote>) {
         let idx = 0;
+        let portfolioValue = 0;
+        let portfolioPnL = 0;
+        let portfolioDaychange = 0;
+
         this.watchlists.forEach(wl => {
             //update the watchlist with new quotes
             this.watchlistService.updateQuotes(qmap, wl);
@@ -90,21 +101,25 @@ export class DashboardComponent implements OnInit, AfterViewInit {
             this.daychangeChart.updateData(idx, wl.totalDayChange);
             this.marketvalueChart.updateData(idx, wl.totalMarketValue);
             this.pnlChart.updateData(idx, wl.totalPnL);
+            //update portfolio values
+            portfolioValue += wl.totalMarketValue;
+            portfolioPnL += wl.totalPnL;
+            portfolioDaychange += wl.totalDayChange;
             //go to next watchlist
             idx += 1;
         });
+        this.portfolioValue = portfolioValue;
+        this.portfolioPnL = portfolioPnL;
+        this.portfolioDaychange = portfolioDaychange;
     }
 
     setChartData() {
-        let portfolioDaychange, portfolioPnL, portfolioValue = 0;
+        this.portfolioDaychange, this.portfolioPnL, this.portfolioValue = 0;
         let chartData = {
             dataLabels: [],
             marketValues: [],
             pnlValues: [],
-            daychangeValues: [],
-            portfolioValue: 0,
-            portfolioPnL: 0,
-            portfolioDaychange: 0
+            daychangeValues: []
         };
 
         this.watchlists.forEach(wl => {
@@ -114,16 +129,16 @@ export class DashboardComponent implements OnInit, AfterViewInit {
             chartData.pnlValues.push(wl.totalPnL);
             chartData.daychangeValues.push(wl.totalDayChange);
 
-            chartData.portfolioValue += wl.totalMarketValue;
-            chartData.portfolioPnL += wl.totalPnL;
-            chartData.portfolioDaychange += wl.totalDayChange;
+            this.portfolioValue += wl.totalMarketValue;
+            this.portfolioPnL += wl.totalPnL;
+            this.portfolioDaychange += wl.totalDayChange;
         });
         console.log(chartData);
         this.chartData = chartData;
     }
 
     setChartOptions() {
-        this.optionsBaseChart = {            
+        this.optionsBaseChart = {
             xAxis: {
                 categories: this.chartData.dataLabels
             },

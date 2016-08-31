@@ -32,6 +32,10 @@ System.register(['@angular/core', '../common/watchlist.service', '../common/quot
                     this.watchlistService = watchlistService;
                     this.quoteService = quoteService;
                     this.watchlists = [];
+                    //portfolio values
+                    this.portfolioDaychange = 0;
+                    this.portfolioPnL = 0;
+                    this.portfolioValue = 0;
                     this.chartStyle = { "font-family": "Lato,'Helvetica Neue', Helvetica, Arial,'sans-serif'" };
                     this.tooltipDaychange = function () {
                         return '<b>' + this.x + '<b> <br>Day Change: ' + '<b>$ ' + this.y + '</b>';
@@ -51,7 +55,7 @@ System.register(['@angular/core', '../common/watchlist.service', '../common/quot
                             _this.quoteService.register(stock.instrument);
                         });
                         //subscribe to quote publisher,  update quotes once and render charts
-                        _this.qsub = _this.quoteService
+                        _this.quoteService
                             .init()
                             .take(1)
                             .subscribe(function (qmap) {
@@ -62,13 +66,15 @@ System.register(['@angular/core', '../common/watchlist.service', '../common/quot
                 };
                 DashboardComponent.prototype.ngAfterViewInit = function () {
                     var _this = this;
-                    console.log('in dashboard after view init');
                     //subscribe to quote publisher and update quotes at specified interval
                     this.qsub = this.quoteService
                         .init()
                         .subscribe(function (qmap) {
                         _this.updateQuotes(qmap);
                     });
+                };
+                DashboardComponent.prototype.ngOnDestroy = function () {
+                    this.qsub.unsubscribe();
                 };
                 DashboardComponent.prototype.renderCharts = function () {
                     this.setChartData();
@@ -77,6 +83,9 @@ System.register(['@angular/core', '../common/watchlist.service', '../common/quot
                 DashboardComponent.prototype.updateQuotes = function (qmap) {
                     var _this = this;
                     var idx = 0;
+                    var portfolioValue = 0;
+                    var portfolioPnL = 0;
+                    var portfolioDaychange = 0;
                     this.watchlists.forEach(function (wl) {
                         //update the watchlist with new quotes
                         _this.watchlistService.updateQuotes(qmap, wl);
@@ -84,29 +93,34 @@ System.register(['@angular/core', '../common/watchlist.service', '../common/quot
                         _this.daychangeChart.updateData(idx, wl.totalDayChange);
                         _this.marketvalueChart.updateData(idx, wl.totalMarketValue);
                         _this.pnlChart.updateData(idx, wl.totalPnL);
+                        //update portfolio values
+                        portfolioValue += wl.totalMarketValue;
+                        portfolioPnL += wl.totalPnL;
+                        portfolioDaychange += wl.totalDayChange;
                         //go to next watchlist
                         idx += 1;
                     });
+                    this.portfolioValue = portfolioValue;
+                    this.portfolioPnL = portfolioPnL;
+                    this.portfolioDaychange = portfolioDaychange;
                 };
                 DashboardComponent.prototype.setChartData = function () {
-                    var portfolioDaychange, portfolioPnL, portfolioValue = 0;
+                    var _this = this;
+                    this.portfolioDaychange, this.portfolioPnL, this.portfolioValue = 0;
                     var chartData = {
                         dataLabels: [],
                         marketValues: [],
                         pnlValues: [],
-                        daychangeValues: [],
-                        portfolioValue: 0,
-                        portfolioPnL: 0,
-                        portfolioDaychange: 0
+                        daychangeValues: []
                     };
                     this.watchlists.forEach(function (wl) {
                         chartData.dataLabels.push(wl.name);
                         chartData.marketValues.push([wl.name, wl.totalMarketValue]);
                         chartData.pnlValues.push(wl.totalPnL);
                         chartData.daychangeValues.push(wl.totalDayChange);
-                        chartData.portfolioValue += wl.totalMarketValue;
-                        chartData.portfolioPnL += wl.totalPnL;
-                        chartData.portfolioDaychange += wl.totalDayChange;
+                        _this.portfolioValue += wl.totalMarketValue;
+                        _this.portfolioPnL += wl.totalPnL;
+                        _this.portfolioDaychange += wl.totalDayChange;
                     });
                     console.log(chartData);
                     this.chartData = chartData;

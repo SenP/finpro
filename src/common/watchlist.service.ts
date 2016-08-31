@@ -66,6 +66,8 @@ export class WatchlistService {
 
   //Get the watchlists (modify later to take userid param)
   getWatchlists() {
+    localStorage.setItem("watchlists", JSON.stringify(this.watchlists));
+    console.log(localStorage.getItem("watchlists"));
     return this.watchlists;
   }
 
@@ -95,7 +97,11 @@ export class WatchlistService {
 
     let dupName = this.watchlists.findIndex(wl => (wl.id !== wlist.id) && (wl.name === wlist.name));
     if (dupName !== -1) { //duplicate name found
-      return { status: "error", msg: "duplicate name" };
+      return { status: "error", msg: "Duplicate watchlist name" };
+    }
+
+    if (i === -1 && this.watchlists.length === 10) { //watchlist limit reached
+      return { status: "error", msg: "Can not create more than 10 watchlists" };
     }
 
     if (i !== -1) { //Edit watchlist
@@ -121,11 +127,14 @@ export class WatchlistService {
   }
 
   //utility: save the edited/new watchlist item
-  doSaveWatchlistItem(wlist, wlItem) {
+  doSaveWatchlistItem(wlist, wlItem): any {
     let wl = this.watchlists[this.watchlists.findIndex(w => w.id === wlist.id)];
-    console.log(wl);
     let i = wl.instruments.findIndex(ins => ins.instrument === wlItem.instrument);
     let data = null;
+
+    if (i === -1 && wl.instruments.length === 30) { //stocks limit reached
+      return { status: "error", msg: "Can not have more than 30 stocks in a watchlist" };
+    }
 
     if (i !== -1) {
       Object.assign(wl.instruments[i], wlItem);
