@@ -30,7 +30,7 @@ System.register(['@angular/core', 'angular2-highcharts'], function(exports_1, co
                 };
                 FPChartComponent.prototype.updateData = function (idx, newVal) {
                     var _this = this;
-                    if (this.chart) {
+                    if (this.chart && this.chart.series[0].data[idx]) {
                         var oldVal = this.chart.series[0].data[idx].y;
                         if (newVal !== oldVal) {
                             setTimeout(function () { return _this.chart.series[0].data[idx].update(newVal); }, 100);

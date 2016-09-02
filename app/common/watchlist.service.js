@@ -79,8 +79,25 @@ System.register(['@angular/core', './watchlist.model', '../common/quote.service'
                 }
                 //Get the watchlists (modify later to take userid param)
                 WatchlistService.prototype.getWatchlists = function () {
-                    // localStorage.setItem("watchlists", JSON.stringify(this.watchlists));
-                    // console.log(localStorage.getItem("watchlists"));
+                    var _this = this;
+                    //localStorage.clear();
+                    //localStorage.setItem("fpwatchlists", JSON.stringify(this.watchlists));
+                    this.watchlists = [];
+                    var watchlistsRaw = JSON.parse(localStorage.getItem("fpwatchlists"));
+                    if (watchlistsRaw) {
+                        watchlistsRaw.forEach(function (wlraw) {
+                            //console.log(wlraw);
+                            var newWL = Object.assign(new watchlist_model_1.Watchlist(), wlraw);
+                            newWL.instruments = []; //reset so we can create and assign watchlist items      
+                            wlraw.instruments.forEach(function (ins) {
+                                var newWLItem = Object.assign(new watchlist_model_1.WatchlistItem(), ins);
+                                newWL.instruments.push(newWLItem);
+                            });
+                            //console.log(newWL);
+                            _this.watchlists.push(newWL);
+                        });
+                    }
+                    console.log(this.watchlists);
                     return this.watchlists;
                 };
                 //Update watchlist instruments with given quotes 
@@ -125,6 +142,7 @@ System.register(['@angular/core', './watchlist.model', '../common/quote.service'
                         this.watchlists.push(Object.assign(new watchlist_model_1.Watchlist(), wlist));
                         data = this.watchlists[this.watchlists.length - 1];
                     }
+                    localStorage.setItem("fpwatchlists", JSON.stringify(this.watchlists));
                     return { status: "success", data: data };
                 };
                 //Save a watchlist item, simulate http post delay  
@@ -152,6 +170,7 @@ System.register(['@angular/core', './watchlist.model', '../common/quote.service'
                         this.quoteService.register(wlItem.instrument, wlItem.exchange);
                         data = wl.instruments[wl.instruments.length - 1];
                     }
+                    localStorage.setItem("fpwatchlists", JSON.stringify(this.watchlists));
                     return { status: "success", data: data };
                 };
                 //simulate http delete of watchlist
@@ -176,6 +195,7 @@ System.register(['@angular/core', './watchlist.model', '../common/quote.service'
                             });
                         }
                     }
+                    localStorage.setItem("fpwatchlists", JSON.stringify(this.watchlists));
                     return { status: "success", data: wlist };
                 };
                 WatchlistService.prototype.deleteWatchlistItem = function (wlist, wlItem) {
@@ -194,6 +214,7 @@ System.register(['@angular/core', './watchlist.model', '../common/quote.service'
                         wl.instruments.splice(i, 1);
                         this.quoteService.deregister(wlItem.instrument, wlItem.exchange);
                     }
+                    localStorage.setItem("fpwatchlists", JSON.stringify(this.watchlists));
                     return { status: "success", data: wlItem };
                 };
                 WatchlistService = __decorate([

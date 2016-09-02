@@ -67,7 +67,7 @@ System.register(['@angular/core', '../common/watchlist.service', '../common/watc
                         this.watchlistService
                             .saveWatchlistItem(this.watchlist, this.editedItem)
                             .then(function (res) {
-                            _this.actionDone();
+                            _this.resetView();
                         });
                     }
                 };
@@ -119,11 +119,11 @@ System.register(['@angular/core', '../common/watchlist.service', '../common/watc
                         this.watchlistService
                             .deleteWatchlistItem(this.watchlist, stock)
                             .then(function (res) {
-                            _this.actionDone();
+                            _this.resetView();
                         });
                     }
                 };
-                WatchlistComponent.prototype.actionDone = function () {
+                WatchlistComponent.prototype.resetView = function () {
                     this.editedItem = null;
                     this.isEditing = false;
                     this.isAdding = false;
@@ -147,7 +147,7 @@ System.register(['@angular/core', '../common/watchlist.service', '../common/watc
                     core_1.Component({
                         selector: 'fp-watchlist',
                         templateUrl: 'app/watchlist/watchlist.component.html',
-                        styles: ["           \n                .number-field {\n                    text-align: right\n                }\n\n                .panel-heading {\n                    font-size: 2em;\n                }\n                .msg {\n                    font-style: italic;\n                    font-size: 1.2em;\n                }\n            "]
+                        styles: ["           \n                .number-field {\n                    text-align: right\n                }\n\n                .panel-heading {\n                    font-size: 2em;\n                }\n                .msg {\n                    font-style: italic;\n                    font-size: 1.2em;\n                    background: #ecf0f1;\n                }\n            "]
                     }), 
                     __metadata('design:paramtypes', [watchlist_service_1.WatchlistService])
                 ], WatchlistComponent);

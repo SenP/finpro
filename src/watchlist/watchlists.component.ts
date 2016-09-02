@@ -15,10 +15,10 @@ import { Watchlist } from '../common/watchlist.model';
 
 export class WatchlistsComponent {
 
-    @Input() watchlists: Watchlist[] = [];    
+    @Input() watchlists: Watchlist[] = [];
     @Output() changeSelection = new EventEmitter();
     @ViewChild('editName') editName;
-    
+
     selectedWatchlist: Watchlist;
     editedItem: Watchlist;
     isEditing: boolean = false;
@@ -45,8 +45,8 @@ export class WatchlistsComponent {
         setTimeout(() => this.editName.nativeElement.focus(), 100);
     }
 
-    editWatchlist(wl) {
-        this.editedItem = Object.assign(new Watchlist(), wl);
+    editWatchlist() {
+        this.editedItem = Object.assign(new Watchlist(), this.selectedWatchlist);
         this.isEditing = true;
         setTimeout(() => this.editName.nativeElement.focus(), 100);
     }
@@ -62,28 +62,35 @@ export class WatchlistsComponent {
                     this.msgClass = this.msgClasses.error;
                 }
                 else {
-                    this.actionDone();
+                    this.resetView();
                     this.onChangeSelection(res.data);
                 }
             });
     }
 
-    deleteWatchlist(wlist) {
-        this.isDeleting = true;
-        this.msg = "Deleting...please wait.";
-        this.msgClass = this.msgClasses.info;
-        this.watchlistService
-            .deleteWatchlist(wlist)
-            .then(res => {
-                this.actionDone();
-                //reset watchlist selection if currently selected watchlist is the one being deleted
-                if (this.selectedWatchlist === wlist) {
-                    this.onChangeSelection(null);
-                }
-            });
+    deleteWatchlist() {
+        if (confirm('Delete ' + this.selectedWatchlist.name + ' watchlist?')) {
+            this.isDeleting = true;
+            this.msg = "Deleting...please wait.";
+            this.msgClass = this.msgClasses.info;
+            let delidx = this.watchlists.findIndex(wl => wl.id === this.selectedWatchlist.id);
+            this.watchlistService
+                .deleteWatchlist(this.selectedWatchlist)
+                .then(res => {
+                    this.resetView();
+                    //reset selected watchlist
+                    if (this.watchlists.length === 0) { // last watchlist deleted
+                        this.onChangeSelection(null); //return to dashboard
+                    }
+                    else { //select new last wl if last wl is deleted or next wl if any other wl is deleted
+                        let newidx = delidx === this.watchlists.length ? delidx - 1 : delidx;
+                        this.onChangeSelection(this.watchlists[newidx]);
+                    }
+                });
+        }
     }
 
-    actionDone() {
+    resetView() {
         this.editedItem = null;
         this.isEditing = false;
         this.isAdding = false;

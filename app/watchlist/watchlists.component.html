@@ -7,11 +7,11 @@
 				<i class="fa fa-plus" ></i>
 			</span>
 		<!--Display Edit button-->
-		<span *ngIf="selectedWatchlist" class="btn btn-warning btn-xs" (click)="editWatchlist(selectedWatchlist)">
+		<span *ngIf="selectedWatchlist" class="btn btn-warning btn-xs" (click)="editWatchlist()">
 				<i class="fa fa-pencil-square-o"></i>
 			</span>
 		<!--Display Delete button-->
-		<span *ngIf="selectedWatchlist" class="btn btn-danger btn-xs" (click)="deleteWatchlist(selectedWatchlist)">
+		<span *ngIf="selectedWatchlist" class="btn btn-danger btn-xs" (click)="deleteWatchlist()">
 				<i class="fa fa-trash-o"></i> 
 			</span>
 		</span>
@@ -36,7 +36,7 @@
 				</div>
 				<br>
 				<button type="submit" class="btn btn-primary btn-sm" [disabled]="!f.valid">Save</button>
-				<button type="button" class="btn btn-danger btn-sm" (click)="cancelEdit()">Cancel</button>
+				<button type="button" class="btn btn-danger btn-sm" (click)="resetView()">Cancel</button>
 			</form>
 		</div>
 		<div *ngIf="msg" [class]="msgClass"> {{ msg }}

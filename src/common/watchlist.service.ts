@@ -10,7 +10,7 @@ export class WatchlistService {
 
   private watchlists: Array<Watchlist> = [];
 
-  constructor(private quoteService: QuoteService) { 
+  constructor(private quoteService: QuoteService) {
     //1st
     this.watchlists.push(Object.assign(new Watchlist(), {
       id: 1,
@@ -67,8 +67,24 @@ export class WatchlistService {
 
   //Get the watchlists (modify later to take userid param)
   getWatchlists() {
-    // localStorage.setItem("watchlists", JSON.stringify(this.watchlists));
-    // console.log(localStorage.getItem("watchlists"));
+    //localStorage.clear();
+    //localStorage.setItem("fpwatchlists", JSON.stringify(this.watchlists));
+    this.watchlists = [];
+    let watchlistsRaw: Object[] = JSON.parse(localStorage.getItem("fpwatchlists"));
+    if (watchlistsRaw) {
+      watchlistsRaw.forEach(wlraw => {
+        //console.log(wlraw);
+        let newWL: Watchlist = Object.assign(new Watchlist(), wlraw);
+        newWL.instruments = []; //reset so we can create and assign watchlist items      
+        wlraw.instruments.forEach(ins => {
+          let newWLItem = Object.assign(new WatchlistItem(), ins);
+          newWL.instruments.push(newWLItem);
+        });
+        //console.log(newWL);
+        this.watchlists.push(newWL);
+      });
+    }
+    console.log(this.watchlists);
     return this.watchlists;
   }
 
@@ -119,6 +135,7 @@ export class WatchlistService {
       this.watchlists.push(Object.assign(new Watchlist(), wlist));
       data = this.watchlists[this.watchlists.length - 1];
     }
+    localStorage.setItem("fpwatchlists", JSON.stringify(this.watchlists));
     return { status: "success", data: data };
   }
 
@@ -147,10 +164,10 @@ export class WatchlistService {
     }
     else { //create
       wl.instruments.push(Object.assign(new WatchlistItem(), wlItem));
-      this.quoteService.register(wlItem.instrument,wlItem.exchange);
+      this.quoteService.register(wlItem.instrument, wlItem.exchange);
       data = wl.instruments[wl.instruments.length - 1];
     }
-
+    localStorage.setItem("fpwatchlists", JSON.stringify(this.watchlists));
     return { status: "success", data: data };
   }
 
@@ -172,10 +189,11 @@ export class WatchlistService {
       //deregister instrument from quote service
       if (wlist.instruments.length > 0) {
         wlist.instruments.forEach(ins => {
-          this.quoteService.deregister(ins.instrument,ins.exchange);
+          this.quoteService.deregister(ins.instrument, ins.exchange);
         })
       }
     }
+    localStorage.setItem("fpwatchlists", JSON.stringify(this.watchlists));
     return { status: "success", data: wlist };
   }
 
@@ -194,8 +212,9 @@ export class WatchlistService {
 
     if (i !== -1) {
       wl.instruments.splice(i, 1);
-      this.quoteService.deregister(wlItem.instrument,wlItem.exchange);
+      this.quoteService.deregister(wlItem.instrument, wlItem.exchange);
     }
+    localStorage.setItem("fpwatchlists", JSON.stringify(this.watchlists));
     return { status: "success", data: wlItem };
   }
 }

@@ -28,7 +28,7 @@ export class FPChartComponent {
     }
 
     updateData(idx, newVal) {
-        if (this.chart) {
+        if (this.chart && this.chart.series[0].data[idx]) {
             let oldVal = this.chart.series[0].data[idx].y;
             if (newVal !== oldVal) {
                 setTimeout(() => this.chart.series[0].data[idx].update(newVal), 100);

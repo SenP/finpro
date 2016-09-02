@@ -48,9 +48,9 @@ System.register(['@angular/core', '../common/watchlist.service', '../common/watc
                     this.isAdding = true;
                     setTimeout(function () { return _this.editName.nativeElement.focus(); }, 100);
                 };
-                WatchlistsComponent.prototype.editWatchlist = function (wl) {
+                WatchlistsComponent.prototype.editWatchlist = function () {
                     var _this = this;
-                    this.editedItem = Object.assign(new watchlist_model_1.Watchlist(), wl);
+                    this.editedItem = Object.assign(new watchlist_model_1.Watchlist(), this.selectedWatchlist);
                     this.isEditing = true;
                     setTimeout(function () { return _this.editName.nativeElement.focus(); }, 100);
                 };
@@ -66,27 +66,34 @@ System.register(['@angular/core', '../common/watchlist.service', '../common/watc
                             _this.msgClass = _this.msgClasses.error;
                         }
                         else {
-                            _this.actionDone();
+                            _this.resetView();
                             _this.onChangeSelection(res.data);
                         }
                     });
                 };
-                WatchlistsComponent.prototype.deleteWatchlist = function (wlist) {
+                WatchlistsComponent.prototype.deleteWatchlist = function () {
                     var _this = this;
-                    this.isDeleting = true;
-                    this.msg = "Deleting...please wait.";
-                    this.msgClass = this.msgClasses.info;
-                    this.watchlistService
-                        .deleteWatchlist(wlist)
-                        .then(function (res) {
-                        _this.actionDone();
-                        //reset watchlist selection if currently selected watchlist is the one being deleted
-                        if (_this.selectedWatchlist === wlist) {
-                            _this.onChangeSelection(null);
-                        }
-                    });
+                    if (confirm('Delete ' + this.selectedWatchlist.name + ' watchlist?')) {
+                        this.isDeleting = true;
+                        this.msg = "Deleting...please wait.";
+                        this.msgClass = this.msgClasses.info;
+                        var delidx_1 = this.watchlists.findIndex(function (wl) { return wl.id === _this.selectedWatchlist.id; });
+                        this.watchlistService
+                            .deleteWatchlist(this.selectedWatchlist)
+                            .then(function (res) {
+                            _this.resetView();
+                            //reset selected watchlist
+                            if (_this.watchlists.length === 0) {
+                                _this.onChangeSelection(null); //return to dashboard
+                            }
+                            else {
+                                var newidx = delidx_1 === _this.watchlists.length ? delidx_1 - 1 : delidx_1;
+                                _this.onChangeSelection(_this.watchlists[newidx]);
+                            }
+                        });
+                    }
                 };
-                WatchlistsComponent.prototype.actionDone = function () {
+                WatchlistsComponent.prototype.resetView = function () {
                     this.editedItem = null;
                     this.isEditing = false;
                     this.isAdding = false;

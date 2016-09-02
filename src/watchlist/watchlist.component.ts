@@ -16,6 +16,7 @@ import { Watchlist, WatchlistItem } from '../common/watchlist.model';
                 .msg {
                     font-style: italic;
                     font-size: 1.2em;
+                    background: #ecf0f1;
                 }
             `]
 })
@@ -53,7 +54,7 @@ export class WatchlistComponent implements OnChanges {
         setTimeout(() => this.editCode.nativeElement.focus(), 100);
     }
 
-    editWatchlistItem(stock) {
+    editWatchlistItem(stock: WatchlistItem) {
         this.editedItem = Object.assign(new WatchlistItem(), stock);
         this.isEditing = true;
         setTimeout(() => this.editUnits.nativeElement.focus(), 100);
@@ -71,10 +72,10 @@ export class WatchlistComponent implements OnChanges {
             this.watchlistService
                 .saveWatchlistItem(this.watchlist, this.editedItem)
                 .then(res => {
-                    this.actionDone();
+                    this.resetView();
                 });
         }
-    }    
+    }
 
     //validate edited watchlist item
     validateWatchlistItem() {
@@ -117,7 +118,7 @@ export class WatchlistComponent implements OnChanges {
         return result;
     }
 
-    deleteWatchlistItem(stock) {
+    deleteWatchlistItem(stock: WatchlistItem) {
         if (confirm('Delete ' + stock.instrument + ' from watchlist?')) {
             this.isDeleting = true;
             this.msg = "Deleting...please wait.";
@@ -126,12 +127,12 @@ export class WatchlistComponent implements OnChanges {
             this.watchlistService
                 .deleteWatchlistItem(this.watchlist, stock)
                 .then(res => {
-                    this.actionDone();
+                    this.resetView();
                 });
         }
     }
 
-    actionDone() {
+    resetView() {
         this.editedItem = null;
         this.isEditing = false;
         this.isAdding = false;

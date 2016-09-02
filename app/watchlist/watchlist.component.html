@@ -26,6 +26,11 @@
 							[readonly]="isEditing" required> &nbsp; &nbsp;
 				</div>
 				<div class="form-group">
+					<label> Exchange: </label>
+					<input type="text" name="exchange" class="form-control input-sm" [(ngModel)]="editedItem.exchange"
+							[readonly]="isEditing" required> &nbsp; &nbsp;
+				</div>
+				<div class="form-group">
 					<label> Units Owned: </label>
 					<input #editUnits type="text" name="unitsOwned" class="form-control input-sm" [(ngModel)]="editedItem.unitsOwned"
 							required> &nbsp;
@@ -37,7 +42,7 @@
 				</div>
 				&nbsp;&nbsp;
 				<button type="submit" class="btn btn-primary btn-sm" [disabled]="!f.valid">Save</button>
-				<button type="button" class="btn btn-danger btn-sm" (click)="cancelEdit()">Cancel</button>
+				<button type="button" class="btn btn-danger btn-sm" (click)="resetView()">Cancel</button>
 			</form>
 		</div>
 		<div *ngIf="msg" [class]="msgClass"> {{ msg }}
@@ -96,8 +101,8 @@
 				</td>
 				<td class="number-field"><strong sign> {{ watchlist.totalDayChange | currency:'USD':true:'1.2-2' }} </strong></td>
 				<td class="number-field"><strong sign> {{ watchlist.totalPnL | currency:'USD':true:'1.2-2' }} </strong></td>
-				<td></td>
-				<td></td>
+				<td *ngIf="!isEditing && !isAdding && !isDeleting"></td>
+				<td *ngIf="!isEditing && !isAdding && !isDeleting"></td>
 			</tr>
 		</tbody>
 	</table>
