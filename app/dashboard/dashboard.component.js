@@ -1,4 +1,4 @@
-System.register(['rxjs/Rx', '@angular/core', '../common/watchlist.service', './fpchart.component'], function(exports_1, context_1) {
+System.register(['rxjs/Rx', '@angular/core', '../common/watchlist.service', './fpchart.component', './topstocks.component'], function(exports_1, context_1) {
     "use strict";
     var __moduleName = context_1 && context_1.id;
     var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
@@ -10,7 +10,7 @@ System.register(['rxjs/Rx', '@angular/core', '../common/watchlist.service', './f
     var __metadata = (this && this.__metadata) || function (k, v) {
         if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
     };
-    var Rx_1, core_1, watchlist_service_1, fpchart_component_1;
+    var Rx_1, core_1, watchlist_service_1, fpchart_component_1, topstocks_component_1;
     var DashboardComponent;
     return {
         setters:[
@@ -25,6 +25,9 @@ System.register(['rxjs/Rx', '@angular/core', '../common/watchlist.service', './f
             },
             function (fpchart_component_1_1) {
                 fpchart_component_1 = fpchart_component_1_1;
+            },
+            function (topstocks_component_1_1) {
+                topstocks_component_1 = topstocks_component_1_1;
             }],
         execute: function() {
             DashboardComponent = (function () {
@@ -78,6 +81,10 @@ System.register(['rxjs/Rx', '@angular/core', '../common/watchlist.service', './f
                     this.portfolioValue = portfolioValue;
                     this.portfolioPnL = portfolioPnL;
                     this.portfolioDaychange = portfolioDaychange;
+                    //update topstocks tables
+                    this.topMV.update();
+                    this.topPL.update();
+                    this.topDC.update();
                 };
                 DashboardComponent.prototype.setChartData = function () {
                     var _this = this;
@@ -200,6 +207,18 @@ System.register(['rxjs/Rx', '@angular/core', '../common/watchlist.service', './f
                     core_1.ViewChild('pnlChart'), 
                     __metadata('design:type', fpchart_component_1.FPChartComponent)
                 ], DashboardComponent.prototype, "pnlChart", void 0);
+                __decorate([
+                    core_1.ViewChild('topMV'), 
+                    __metadata('design:type', topstocks_component_1.TopstocksComponent)
+                ], DashboardComponent.prototype, "topMV", void 0);
+                __decorate([
+                    core_1.ViewChild('topPL'), 
+                    __metadata('design:type', topstocks_component_1.TopstocksComponent)
+                ], DashboardComponent.prototype, "topPL", void 0);
+                __decorate([
+                    core_1.ViewChild('topDC'), 
+                    __metadata('design:type', topstocks_component_1.TopstocksComponent)
+                ], DashboardComponent.prototype, "topDC", void 0);
                 DashboardComponent = __decorate([
                     core_1.Component({
                         selector: 'fp-dashboard',

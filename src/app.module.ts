@@ -13,15 +13,18 @@ import { DashboardComponent } from './dashboard/dashboard.component';
 import { WatchlistService } from './common/watchlist.service';
 import { QuoteService } from './common/quote.service';
 import { SignDirective } from './common/sign.directive';
-
+import { FilterArrPipe } from './common/filterArr.pipe';
 //chart component
 import { FPChartComponent } from './dashboard/fpchart.component';
+//topstocks component
+import { TopstocksComponent } from './dashboard/topstocks.component';
+
 
 @NgModule({
     imports: [HttpModule, JsonpModule, BrowserModule, FormsModule],
-    declarations: [AppComponent, NavbarComponent, CHART_DIRECTIVES, SignDirective,
-                    WatchlistsComponent, WatchlistComponent, DashboardComponent, FPChartComponent],
-    providers: [WatchlistService, QuoteService],
+    declarations: [AppComponent, NavbarComponent, CHART_DIRECTIVES, SignDirective, FilterArrPipe,
+                    WatchlistsComponent, WatchlistComponent, DashboardComponent, FPChartComponent, TopstocksComponent],
+    providers: [WatchlistService, QuoteService, FilterArrPipe],
     bootstrap: [AppComponent]
 })
 export class AppModule {

@@ -3,6 +3,7 @@ import { Component, Input, ViewChild, OnInit, AfterViewInit } from '@angular/cor
 import { Watchlist, WatchlistItem } from '../common/watchlist.model';
 import { WatchlistService } from '../common/watchlist.service';
 import { FPChartComponent } from './fpchart.component';
+import { TopstocksComponent } from './topstocks.component';
 
 @Component({
     selector: 'fp-dashboard',
@@ -18,6 +19,11 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     @ViewChild('marketvalueChart') marketvalueChart: FPChartComponent;
     @ViewChild('pnlChart') pnlChart: FPChartComponent;
 
+    //Topstocks tables
+    @ViewChild('topMV') topMV: TopstocksComponent
+    @ViewChild('topPL') topPL: TopstocksComponent
+    @ViewChild('topDC') topDC: TopstocksComponent
+
     // Chart option objects    
     optionsDaychangeChart;
     optionsPnLChart;
@@ -27,10 +33,13 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     // Portfolio values
     portfolioDaychange = 0;
     portfolioPnL = 0;
-    portfolioValue = 0;    
+    portfolioValue = 0;
 
     // Refresh scheduler
     refreshScheduler: Observable<number>;
+
+    //All stocks
+    allStocks;
 
     constructor(private watchlistService: WatchlistService) { }
 
@@ -80,6 +89,10 @@ export class DashboardComponent implements OnInit, AfterViewInit {
         this.portfolioValue = portfolioValue;
         this.portfolioPnL = portfolioPnL;
         this.portfolioDaychange = portfolioDaychange;
+        //update topstocks tables
+        this.topMV.update();
+        this.topPL.update();
+        this.topDC.update();
     }
 
     setChartData() {
@@ -107,7 +120,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
 
     setChartOptions() {
 
-         let tooltipDaychange = function () {
+        let tooltipDaychange = function () {
             return '<b>' + this.key + '<b> <br>Day Change: ' + '<b>$ ' + this.y + '</b>';
         }
 

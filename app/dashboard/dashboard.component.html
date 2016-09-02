@@ -1,42 +1,77 @@
 <div class="panel panel-default">
 	<div class="panel-heading text-center">
-		<h3> <strong> Portfolio Dashboard </strong> </h3>
-	</div>
-	<div class="panel-body">
-		<div class="row well well-sm">
+		<div class="row">
+			<div class="col-md-12">
+				<span class="text-center"> <h4><strong> Portfolio Dashboard </strong> </h4> </span>
+			</div>
+		</div>
+		<div class="row">
 			<div class="col-md-4">
 				<span class="text-center"> <h5> Total Market Value </h5> </span>
-				<span class="text-center" [class.posLabel]="chartData?.portfolioValue > 0" 
-					[class.negLabel]="chartData?.portfolioValue < 0"> 
-					<h3 sign> {{ portfolioValue | currency:'USD':true:'1.2-2' }} </h3> </span>
+				<span class="text-center" [class.posLabel]="chartData?.portfolioValue > 0" [class.negLabel]="chartData?.portfolioValue < 0"> 
+					<h4> <strong sign> {{ portfolioValue | currency:'USD':true:'1.2-2' }} </strong> </h4> 
+				</span>
 			</div>
 			<div class="col-md-4">
 				<span class="text-center"> <h5> Net Profit/Loss </h5> </span>
-				<span class="text-center" [class.posLabel]="chartData?.portfolioPnL > 0" 
-					[class.negLabel]="chartData?.portfolioPnL < 0"> 
-					<h3 sign> {{ portfolioPnL | currency:'USD':true:'1.2-2' }} </h3> </span>
+				<span class="text-center" [class.posLabel]="chartData?.portfolioPnL > 0" [class.negLabel]="chartData?.portfolioPnL < 0"> 
+					<h4><strong sign> {{ portfolioPnL | currency:'USD':true:'1.2-2' }}</strong> </h4> </span>
 			</div>
 			<div class="col-md-4">
 				<span class="text-center"> <h5> Total Day Change </h5> </span>
-				<span class="text-center" [class.posLabel]="chartData?.portfolioDaychange > 0" 
-					[class.negLabel]="chartData?.portfolioDaychange < 0"> 
-					<h3 sign> {{ portfolioDaychange | currency:'USD':true:'1.2-2' }} </h3> </span>
+				<span class="text-center" [class.posLabel]="chartData?.portfolioDaychange > 0" [class.negLabel]="chartData?.portfolioDaychange < 0"> 
+					<h4><strong sign> {{ portfolioDaychange | currency:'USD':true:'1.2-2' }} </strong> </h4> </span>
 			</div>
 		</div>
+	</div>
+	<div class="panel-body">
 		<div class="row">
-			<div class="col-md-6 panel-footer">
-				<fp-chart #daychangeChart [config]="optionsDaychangeChart"></fp-chart>
-			</div>
-			<div class="col-md-6 panel-footer">
-				<fp-chart #pnlChart [config]="optionsPnLChart"></fp-chart>
-			</div>
-		</div>
-		<div class="row">
-			<div class="col-md-6 panel-footer">
+			<!--Market Values Pie Chart-->
+			<div class="col-md-4 panel-footer">
 				<fp-chart #marketvalueChart [config]="optionsMarketValueChart"></fp-chart>
 			</div>
-			<div class="col-md-6 panel-footer">
+			<!--Net P/L Bar Chart-->
+			<div class="col-md-4 panel-footer">
+				<fp-chart #pnlChart [config]="optionsPnLChart"></fp-chart>
 			</div>
+			<!--Day Change Bar Chart-->
+			<div class="col-md-4 panel-footer">
+				<fp-chart #daychangeChart [config]="optionsDaychangeChart"></fp-chart>
+			</div>
+
+		</div>
+		<div class="row">
+			<div class="col-md-4 panel-footer">
+				<div class="text-center">
+					<h5><strong> Top Stocks by Market Value </strong> </h5>
+				</div>
+				<div>
+					<fp-topstocks #topMV [watchlists]="watchlists" title="Market Value ($)" [orderBy]="'marketValue'"
+							sortOrder="dsc">
+					</fp-topstocks>
+				</div>
+			</div>
+			<div class="col-md-4 panel-footer">
+				<div class="text-center">
+					<h5><strong> Top Stocks by Net P/L </strong> </h5>
+				</div>
+				<div>
+					<fp-topstocks #topPL [watchlists]="watchlists" title="Net P/L ($)" [orderBy]="'netPnL'"
+							sortOrder="dsc">
+					</fp-topstocks>
+				</div>
+			</div>
+			<div class="col-md-4 panel-footer">
+				<div class="text-center">
+					<h5><strong> Top Stocks by Day Change </strong> </h5>
+				</div>
+				<div>
+					<fp-topstocks #topDC [watchlists]="watchlists" title="Day Change ($)" [orderBy]="'dayChange'"
+							sortOrder="dsc">
+					</fp-topstocks>
+				</div>
+			</div>
+
 		</div>
 	</div>
 </div>

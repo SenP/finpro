@@ -55,6 +55,7 @@
 		<thead>
 			<tr class="active">
 				<th>Stock Code </th>
+				<th>Exchange </th>
 				<th class="number-field">Units Owned </th>
 				<th class="number-field">Avg Buy Price ($) </th>
 				<th class="number-field">Last Traded Price ($) </th>
@@ -70,6 +71,7 @@
 		<tbody>
 			<tr *ngFor="let stock of watchlist?.instruments">
 				<td> {{ stock.instrument }} </td>
+				<td> {{ stock.exchange }} </td>
 				<td class="number-field"> {{ stock.unitsOwned | number: '1.0-0'}} </td>
 				<td class="number-field"> {{ stock.avgPrice | number:'1.2-2'}} </td>
 				<td class="number-field"> {{ stock.lastPrice | number:'1.2-2' }} </td>
@@ -92,6 +94,7 @@
 			</tr>
 			<tr *ngIf="watchlist?.instruments.length> 1" class="active">
 				<td><strong>Totals </strong></td>
+				<td> </td>
 				<td class="number-field"> {{ watchlist.totalUnitsOwned }}</td>
 				<td> </td>
 				<td> </td>
