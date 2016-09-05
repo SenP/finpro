@@ -29,6 +29,8 @@ System.register(['@angular/core', './common/watchlist.service', './common/quote.
                     this.watchlistService = watchlistService;
                     this.quoteService = quoteService;
                     this.watchlists = [];
+                    this.refInterval = 60;
+                    this.refFreqs = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60];
                 }
                 AppComponent.prototype.ngOnInit = function () {
                     var _this = this;
@@ -39,14 +41,22 @@ System.register(['@angular/core', './common/watchlist.service', './common/quote.
                             _this.quoteService.register(stock.instrument, stock.exchange);
                         });
                     });
-                    this.qsub = this.quoteService
-                        .init(15000)
+                    this.qsub = this.quoteService.init(this.refInterval * 1000);
+                    this.qsub
                         .subscribe(function (qmap) {
                         _this.watchlistService.updateQuotes(qmap);
                     });
                 };
                 AppComponent.prototype.onSelect = function (wl) {
                     this.selectedWatchlist = wl;
+                };
+                AppComponent.prototype.onChangeTimer = function () {
+                    // this.qsub.unsubscribe();
+                    this.quoteService.resetTimer(this.refInterval * 1000);
+                    // this.qsub        
+                    //     .subscribe(qmap => {
+                    //         this.watchlistService.updateQuotes(qmap);
+                    //     });
                 };
                 AppComponent = __decorate([
                     core_1.Component({

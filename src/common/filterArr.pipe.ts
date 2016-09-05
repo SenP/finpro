@@ -5,6 +5,8 @@ export class FilterArrPipe implements PipeTransform {
 
   transform(value: Object[], prop: string, itemsCount = 5, order: string = 'asc'): Array<Object> {
     
+    if (!value || value.length === 0 || !prop ) return [];
+
     var list = value;
     
     // temporary array holds objects with position and sort-value

@@ -4,6 +4,7 @@ import { NavbarComponent } from './navbar/navbar.component';
 import { Watchlist, WatchlistItem } from './common/watchlist.model';
 import { WatchlistService } from './common/watchlist.service';
 import { QuoteService } from './common/quote.service';
+import { Quote } from '../common/quote.model';
 
 @Component({
     selector: 'finpro-app',
@@ -21,8 +22,10 @@ import { QuoteService } from './common/quote.service';
 export class AppComponent implements OnInit {
 
     watchlists: Watchlist[] = [];
-    selectedWatchlist;
-    qsub: Subscription;
+    selectedWatchlist: Watchlist;
+    refInterval: number = 60;
+    refFreqs: number[] = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60];
+    qsub: Subject<Map<string, Quote>>;
 
     constructor(private watchlistService: WatchlistService,
         private quoteService: QuoteService
@@ -38,8 +41,8 @@ export class AppComponent implements OnInit {
             });
         });
 
-        this.qsub = this.quoteService
-            .init(15000)
+        this.qsub = this.quoteService.init(this.refInterval * 1000);
+        this.qsub
             .subscribe(qmap => {
                 this.watchlistService.updateQuotes(qmap);
             });
@@ -47,5 +50,15 @@ export class AppComponent implements OnInit {
 
     onSelect(wl) {
         this.selectedWatchlist = wl;
+    }
+
+    onChangeTimer() {
+        // this.qsub.unsubscribe();
+        this.quoteService.resetTimer(this.refInterval * 1000);
+        // this.qsub        
+        //     .subscribe(qmap => {
+        //         this.watchlistService.updateQuotes(qmap);
+        //     });
+
     }
 }

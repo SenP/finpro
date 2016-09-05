@@ -17,7 +17,7 @@
 		</span>
 	</div>
 
-	<div class="panel-body">
+	<div>
 		<div *ngIf="watchlists.length == 0">
 			<h2> No Watchlists available! </h2>
 			<p> Click the + button above to create a new watchlist.</p>
@@ -42,14 +42,14 @@
 		<div *ngIf="msg" [class]="msgClass"> {{ msg }}
 			<button type="button" class="close" (click)="msg = null"><span>&times;</span></button>
 		</div>
-		<!--Display watchlists only if no operation is being performed-->
-		<div *ngIf="!isEditing && !isAdding && !isDeleting" class="list-group">
-			<div *ngFor="let w of watchlists">
-				<a class="list-group-item" href="#" [class.list-group-item-info]="w === selectedWatchlist"
-						(click)="onChangeSelection(w)">
+	</div>
+	<!--Display watchlists only if no operation is being performed-->
+	<div *ngIf="!isEditing && !isAdding && !isDeleting" class="list-group">
+		<div *ngFor="let w of watchlists">
+			<a class="list-group-item" href="#" [class.list-group-item-info]="w === selectedWatchlist"
+					(click)="onChangeSelection(w)">
 					{{ w.name }}										
 				</a>
-			</div>
 		</div>
 	</div>
 </div>

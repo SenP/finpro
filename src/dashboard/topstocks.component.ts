@@ -12,33 +12,25 @@ import { FilterArrPipe } from '../common/filterArr.pipe';
                     text-align: center
                 }                
                 .topTable {
-                    background: white;
+                    background: white
                 }                
         `]
 })
 
 export class TopstocksComponent {
 
-    @Input() watchlists: Watchlist[];
+    @Input('stocks') allStocks: WatchlistItem[];
     @Input() title;
     @Input() orderBy;
     @Input() numRequired;
     @Input() sortOrder;
     
     topStocks: WatchlistItem[] = [];
-    allStocks: WatchlistItem[] = [];
 
     constructor(private watchlistService: WatchlistService,
         private filterList: FilterArrPipe) { }
 
     update() {
-        this.allStocks = [];
-        this.topStocks = [];
-        this.watchlists.forEach(wl => {
-            this.allStocks = this.allStocks.concat(wl.instruments);
-        });
-        console.log('all stocks');        
-        console.log(this.allStocks);
         this.topStocks = this.filterList.transform(this.allStocks, this.orderBy, this.numRequired, this.sortOrder);
     }
 }

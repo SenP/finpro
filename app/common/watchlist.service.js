@@ -86,18 +86,15 @@ System.register(['@angular/core', './watchlist.model', '../common/quote.service'
                     var watchlistsRaw = JSON.parse(localStorage.getItem("fpwatchlists"));
                     if (watchlistsRaw) {
                         watchlistsRaw.forEach(function (wlraw) {
-                            //console.log(wlraw);
                             var newWL = Object.assign(new watchlist_model_1.Watchlist(), wlraw);
                             newWL.instruments = []; //reset so we can create and assign watchlist items      
                             wlraw.instruments.forEach(function (ins) {
                                 var newWLItem = Object.assign(new watchlist_model_1.WatchlistItem(), ins);
                                 newWL.instruments.push(newWLItem);
                             });
-                            //console.log(newWL);
                             _this.watchlists.push(newWL);
                         });
                     }
-                    console.log(this.watchlists);
                     return this.watchlists;
                 };
                 //Update watchlist instruments with given quotes 

@@ -7,7 +7,16 @@ import { TopstocksComponent } from './topstocks.component';
 
 @Component({
     selector: 'fp-dashboard',
-    templateUrl: 'app/dashboard/dashboard.component.html'
+    templateUrl: 'app/dashboard/dashboard.component.html',
+    styles: [`               
+                .chart-title {
+                    background: lightgrey;
+                    line-height: 1.5em;
+                    display: flex;
+                    text-align: center;
+                    justify-content: center;  
+                }              
+        `]
 })
 
 export class DashboardComponent implements OnInit, AfterViewInit {
@@ -20,9 +29,9 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     @ViewChild('pnlChart') pnlChart: FPChartComponent;
 
     //Topstocks tables
-    @ViewChild('topMV') topMV: TopstocksComponent
-    @ViewChild('topPL') topPL: TopstocksComponent
-    @ViewChild('topDC') topDC: TopstocksComponent
+    @ViewChild('topMV') topMV: TopstocksComponent;
+    @ViewChild('topPL') topPL: TopstocksComponent;
+    @ViewChild('topDC') topDC: TopstocksComponent;
 
     // Chart option objects    
     optionsDaychangeChart;
@@ -37,9 +46,9 @@ export class DashboardComponent implements OnInit, AfterViewInit {
 
     // Refresh scheduler
     refreshScheduler: Observable<number>;
-
+    
     //All stocks
-    allStocks;
+    allStocks: WatchlistItem[];
 
     constructor(private watchlistService: WatchlistService) { }
 
@@ -73,6 +82,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
         let portfolioValue = 0;
         let portfolioPnL = 0;
         let portfolioDaychange = 0;
+        let stocks = [];
 
         this.watchlists.forEach(wl => {
             //update the charts with new values
@@ -83,6 +93,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
             portfolioValue += wl.totalMarketValue;
             portfolioPnL += wl.totalPnL;
             portfolioDaychange += wl.totalDayChange;
+            stocks = stocks.concat(wl.instruments);
             //go to next watchlist
             idx += 1;
         });
@@ -90,6 +101,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
         this.portfolioPnL = portfolioPnL;
         this.portfolioDaychange = portfolioDaychange;
         //update topstocks tables
+        this.allStocks = stocks;
         this.topMV.update();
         this.topPL.update();
         this.topDC.update();
@@ -120,21 +132,16 @@ export class DashboardComponent implements OnInit, AfterViewInit {
 
     setChartOptions() {
 
-        let tooltipDaychange = function () {
-            return '<b>' + this.key + '<b> <br>Day Change: ' + '<b>$ ' + this.y + '</b>';
-        }
-
-        let tooltipMarketvalue = function () {
-            return '<b>' + this.key + '<b> <br>Market Value: ' + '<b>$ ' + this.y + '</b>';
-        }
-
-        let tooltipNetpnl = function () {
-            return '<b>' + this.x + '<b> <br>Net P/L: ' + '<b>$ ' + this.y + '</b>';
+        function tooltipFn(txt) {
+            return '<strong>{x}</strong><br/> ' + txt + '<b>${point.y}</b>';
         }
 
         let chartStyle = { "font-family": "Lato,'Helvetica Neue', Helvetica, Arial,'sans-serif'" };
 
         let optionsBaseChart = {
+            title: {
+                text: null,
+            },
             xAxis: {
                 categories: this.chartData.dataLabels
             },
@@ -156,14 +163,10 @@ export class DashboardComponent implements OnInit, AfterViewInit {
                 type: 'column',
                 style: chartStyle
             },
-            title: {
-                text: 'Net P/L by Watchlist'
-            },
-            tooltip: {
-                formatter: tooltipNetpnl
-            },
             series: [{
                 data: this.chartData.pnlValues,
+                dataLabels: { enabled: true, format: '${y}' },
+                tooltip: { pointFormat: tooltipFn('Net P/L:') },
                 color: 'green',
                 negativeColor: 'red'
             }]
@@ -175,14 +178,10 @@ export class DashboardComponent implements OnInit, AfterViewInit {
                 type: 'column',
                 style: chartStyle
             },
-            title: {
-                text: 'Day Change by Watchlist'
-            },
-            tooltip: {
-                formatter: tooltipDaychange
-            },
             series: [{
                 data: this.chartData.daychangeValues,
+                dataLabels: { enabled: true, format: '${y}' },
+                tooltip: { pointFormat: tooltipFn('Day Change:') },
                 color: 'green',
                 negativeColor: 'red'
             }]
@@ -194,19 +193,15 @@ export class DashboardComponent implements OnInit, AfterViewInit {
                 type: 'pie',
                 style: chartStyle
             },
-            title: {
-                text: 'Market Value by Watchlist'
-            },
             plotOptions: {
                 pie: {
                     innerSize: '50%'
                 }
             },
-            tooltip: {
-                formatter: tooltipMarketvalue
-            },
             series: [{
-                data: this.chartData.marketValues
+                data: this.chartData.marketValues,
+                dataLabels: { enabled: true, format: '{key}<br><b>${y}</b>' },
+                tooltip: { pointFormat: tooltipFn('Market Value:') }
             }]
         };
         this.optionsMarketValueChart = Object.assign({}, optionsBaseChart, this.optionsMarketValueChart);

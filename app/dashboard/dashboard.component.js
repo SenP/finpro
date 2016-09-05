@@ -66,6 +66,7 @@ System.register(['rxjs/Rx', '@angular/core', '../common/watchlist.service', './f
                     var portfolioValue = 0;
                     var portfolioPnL = 0;
                     var portfolioDaychange = 0;
+                    var stocks = [];
                     this.watchlists.forEach(function (wl) {
                         //update the charts with new values
                         _this.daychangeChart.updateData(idx, wl.totalDayChange);
@@ -75,6 +76,7 @@ System.register(['rxjs/Rx', '@angular/core', '../common/watchlist.service', './f
                         portfolioValue += wl.totalMarketValue;
                         portfolioPnL += wl.totalPnL;
                         portfolioDaychange += wl.totalDayChange;
+                        stocks = stocks.concat(wl.instruments);
                         //go to next watchlist
                         idx += 1;
                     });
@@ -82,6 +84,7 @@ System.register(['rxjs/Rx', '@angular/core', '../common/watchlist.service', './f
                     this.portfolioPnL = portfolioPnL;
                     this.portfolioDaychange = portfolioDaychange;
                     //update topstocks tables
+                    this.allStocks = stocks;
                     this.topMV.update();
                     this.topPL.update();
                     this.topDC.update();
@@ -107,17 +110,14 @@ System.register(['rxjs/Rx', '@angular/core', '../common/watchlist.service', './f
                     this.chartData = chartData;
                 };
                 DashboardComponent.prototype.setChartOptions = function () {
-                    var tooltipDaychange = function () {
-                        return '<b>' + this.key + '<b> <br>Day Change: ' + '<b>$ ' + this.y + '</b>';
-                    };
-                    var tooltipMarketvalue = function () {
-                        return '<b>' + this.key + '<b> <br>Market Value: ' + '<b>$ ' + this.y + '</b>';
-                    };
-                    var tooltipNetpnl = function () {
-                        return '<b>' + this.x + '<b> <br>Net P/L: ' + '<b>$ ' + this.y + '</b>';
-                    };
+                    function tooltipFn(txt) {
+                        return '<strong>{x}</strong><br/> ' + txt + '<b>${point.y}</b>';
+                    }
                     var chartStyle = { "font-family": "Lato,'Helvetica Neue', Helvetica, Arial,'sans-serif'" };
                     var optionsBaseChart = {
+                        title: {
+                            text: null,
+                        },
                         xAxis: {
                             categories: this.chartData.dataLabels
                         },
@@ -138,14 +138,10 @@ System.register(['rxjs/Rx', '@angular/core', '../common/watchlist.service', './f
                             type: 'column',
                             style: chartStyle
                         },
-                        title: {
-                            text: 'Net P/L by Watchlist'
-                        },
-                        tooltip: {
-                            formatter: tooltipNetpnl
-                        },
                         series: [{
                                 data: this.chartData.pnlValues,
+                                dataLabels: { enabled: true, format: '${y}' },
+                                tooltip: { pointFormat: tooltipFn('Net P/L:') },
                                 color: 'green',
                                 negativeColor: 'red'
                             }]
@@ -156,14 +152,10 @@ System.register(['rxjs/Rx', '@angular/core', '../common/watchlist.service', './f
                             type: 'column',
                             style: chartStyle
                         },
-                        title: {
-                            text: 'Day Change by Watchlist'
-                        },
-                        tooltip: {
-                            formatter: tooltipDaychange
-                        },
                         series: [{
                                 data: this.chartData.daychangeValues,
+                                dataLabels: { enabled: true, format: '${y}' },
+                                tooltip: { pointFormat: tooltipFn('Day Change:') },
                                 color: 'green',
                                 negativeColor: 'red'
                             }]
@@ -174,19 +166,15 @@ System.register(['rxjs/Rx', '@angular/core', '../common/watchlist.service', './f
                             type: 'pie',
                             style: chartStyle
                         },
-                        title: {
-                            text: 'Market Value by Watchlist'
-                        },
                         plotOptions: {
                             pie: {
                                 innerSize: '50%'
                             }
                         },
-                        tooltip: {
-                            formatter: tooltipMarketvalue
-                        },
                         series: [{
-                                data: this.chartData.marketValues
+                                data: this.chartData.marketValues,
+                                dataLabels: { enabled: true, format: '{key}<br><b>${y}</b>' },
+                                tooltip: { pointFormat: tooltipFn('Market Value:') }
                             }]
                     };
                     this.optionsMarketValueChart = Object.assign({}, optionsBaseChart, this.optionsMarketValueChart);
@@ -222,7 +210,8 @@ System.register(['rxjs/Rx', '@angular/core', '../common/watchlist.service', './f
                 DashboardComponent = __decorate([
                     core_1.Component({
                         selector: 'fp-dashboard',
-                        templateUrl: 'app/dashboard/dashboard.component.html'
+                        templateUrl: 'app/dashboard/dashboard.component.html',
+                        styles: ["               \n                .chart-title {\n                    background: lightgrey;\n                    line-height: 1.5em;\n                    display: flex;\n                    text-align: center;\n                    justify-content: center;  \n                }              \n        "]
                     }), 
                     __metadata('design:paramtypes', [watchlist_service_1.WatchlistService])
                 ], DashboardComponent);

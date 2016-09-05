@@ -8,6 +8,17 @@
 				<button class="btn btn-default center-block" (click)="wl.onChangeSelection(null)">
                       View Dashboard
                 </button>
+				<br>
+				<div>
+					<label> Quotes refresh interval: </label>
+					<select name="timer" [(ngModel)]="refInterval">
+						<option *ngFor="let f of refFreqs" [value]="f"> {{ f }}</option>
+					</select>					
+					<label> seconds </label> &nbsp;
+					<button class="btn btn-default btn-xs" (click)="onChangeTimer()">
+                      	Update
+                	</button>
+				</div>
 			</div>
 			<hr />
             <!--Display watchlist names-->

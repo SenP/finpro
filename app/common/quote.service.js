@@ -39,10 +39,16 @@ System.register(['@angular/core', '@angular/http', 'rxjs/Rx', 'rxjs/add/operator
                 // Initialize the scheduler, Return the quotes publisher subject to the subscriber
                 QuoteService.prototype.init = function (refInterval) {
                     var _this = this;
-                    this.quoteScheduler = Rx_1.Observable.timer(0, refInterval);
-                    this.quoteScheduler
+                    this.quoteScheduler = Rx_1.Observable.timer(0, refInterval)
                         .subscribe(function () { return _this.refreshQuotes(); });
                     return this.quotePublisher;
+                };
+                // Reset the scheduler to the given interval
+                QuoteService.prototype.resetTimer = function (refInterval) {
+                    var _this = this;
+                    this.quoteScheduler.unsubscribe();
+                    this.quoteScheduler = Rx_1.Observable.timer(0, refInterval)
+                        .subscribe(function () { return _this.refreshQuotes(); });
                 };
                 // Add instrument to the quotes map
                 QuoteService.prototype.register = function (stock, exchg) {
@@ -64,6 +70,7 @@ System.register(['@angular/core', '@angular/http', 'rxjs/Rx', 'rxjs/add/operator
                 // Refresh the quotes map with latest quotes from API
                 QuoteService.prototype.refreshQuotes = function () {
                     var _this = this;
+                    console.log('refreshing');
                     if (this.quotesMap.size > 0) {
                         var stockcodes_1 = '';
                         //create stock codes list
@@ -88,12 +95,16 @@ System.register(['@angular/core', '@angular/http', 'rxjs/Rx', 'rxjs/add/operator
                 // Update the quotes map with the new quote values from API (called from refreshQuotes method)
                 QuoteService.prototype.updateQuotesMap = function (newquotes) {
                     var _this = this;
+                    console.log('new quotes', newquotes);
+                    console.log('quotes map', this.quotesMap);
                     newquotes.forEach(function (newquote) {
                         var quote = _this.quotesMap.get(newquote.e + ':' + newquote.t);
                         if (quote) {
-                            quote.lastPrice = parseFloat((newquote.l).replace(',', '')); // + (Math.random() - 0.5);
-                            quote.change = parseFloat((newquote.c).replace(',', '')); // + (Math.random() - 0.5);
-                            quote.percentChange = parseFloat(newquote.cp); // + (Math.random() - 0.5);
+                            console.log('quote before', quote);
+                            quote.lastPrice = parseFloat((newquote.l).replace(',', '')) * (Math.random() + 0.1);
+                            quote.change = parseFloat((newquote.c).replace(',', '')) + (Math.random() - 0.5);
+                            quote.percentChange = parseFloat(newquote.cp) + (Math.random() - 0.5);
+                            console.log('quote after', quote);
                         }
                     });
                 };

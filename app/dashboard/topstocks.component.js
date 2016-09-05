@@ -29,23 +29,14 @@ System.register(['@angular/core', '../common/watchlist.service', '../common/filt
                     this.watchlistService = watchlistService;
                     this.filterList = filterList;
                     this.topStocks = [];
-                    this.allStocks = [];
                 }
                 TopstocksComponent.prototype.update = function () {
-                    var _this = this;
-                    this.allStocks = [];
-                    this.topStocks = [];
-                    this.watchlists.forEach(function (wl) {
-                        _this.allStocks = _this.allStocks.concat(wl.instruments);
-                    });
-                    console.log('all stocks');
-                    console.log(this.allStocks);
                     this.topStocks = this.filterList.transform(this.allStocks, this.orderBy, this.numRequired, this.sortOrder);
                 };
                 __decorate([
-                    core_1.Input(), 
+                    core_1.Input('stocks'), 
                     __metadata('design:type', Array)
-                ], TopstocksComponent.prototype, "watchlists", void 0);
+                ], TopstocksComponent.prototype, "allStocks", void 0);
                 __decorate([
                     core_1.Input(), 
                     __metadata('design:type', Object)
@@ -66,7 +57,7 @@ System.register(['@angular/core', '../common/watchlist.service', '../common/filt
                     core_1.Component({
                         selector: 'fp-topstocks',
                         templateUrl: 'app/dashboard/topstocks.component.html',
-                        styles: ["\n                .number-field {\n                    text-align: center\n                }                \n                .topTable {\n                    background: white;\n                }                \n        "]
+                        styles: ["\n                .number-field {\n                    text-align: center\n                }                \n                .topTable {\n                    background: white\n                }                \n        "]
                     }), 
                     __metadata('design:paramtypes', [watchlist_service_1.WatchlistService, filterArr_pipe_1.FilterArrPipe])
                 ], TopstocksComponent);

@@ -24,6 +24,8 @@ System.register(['@angular/core'], function(exports_1, context_1) {
                 FilterArrPipe.prototype.transform = function (value, prop, itemsCount, order) {
                     if (itemsCount === void 0) { itemsCount = 5; }
                     if (order === void 0) { order = 'asc'; }
+                    if (!value || value.length === 0 || !prop)
+                        return [];
                     var list = value;
                     // temporary array holds objects with position and sort-value
                     var mapped = list.map(function (el, i) {

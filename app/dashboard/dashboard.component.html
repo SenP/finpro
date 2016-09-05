@@ -25,53 +25,69 @@
 		</div>
 	</div>
 	<div class="panel-body">
+		<!--Charts-->
 		<div class="row">
 			<!--Market Values Pie Chart-->
-			<div class="col-md-4 panel-footer">
-				<fp-chart #marketvalueChart [config]="optionsMarketValueChart"></fp-chart>
+			<div class="col-md-4">
+				<div class="chart-title">
+					<h5><strong> Market Value by Watchlist </strong> </h5>
+				</div>
+				<div class="panel panel-default">
+					<fp-chart #marketvalueChart [config]="optionsMarketValueChart"></fp-chart>
+				</div>
 			</div>
 			<!--Net P/L Bar Chart-->
-			<div class="col-md-4 panel-footer">
-				<fp-chart #pnlChart [config]="optionsPnLChart"></fp-chart>
+			<div class="col-md-4">
+				<div class="chart-title">
+					<h5><strong> Net P/L by Watchlist </strong> </h5>
+				</div>
+				<div class="panel panel-default">				
+					<fp-chart #pnlChart [config]="optionsPnLChart"></fp-chart>
+				</div>
 			</div>
 			<!--Day Change Bar Chart-->
-			<div class="col-md-4 panel-footer">
-				<fp-chart #daychangeChart [config]="optionsDaychangeChart"></fp-chart>
+			<div class="col-md-4">
+				<div class="chart-title">
+					<h5><strong> Day Change by Watchlist </strong> </h5>
+				</div>
+				<div class="panel panel-default">
+					<fp-chart #daychangeChart [config]="optionsDaychangeChart"></fp-chart>
+				</div>
 			</div>
-
 		</div>
+		&nbsp;&nbsp;
+		<!--Top stocks tables-->
 		<div class="row">
-			<div class="col-md-4 panel-footer">
-				<div class="text-center">
+			<div class="col-md-4">
+				<div class="chart-title">
 					<h5><strong> Top Stocks by Market Value </strong> </h5>
 				</div>
-				<div>
-					<fp-topstocks #topMV [watchlists]="watchlists" title="Market Value ($)" [orderBy]="'marketValue'"
+				<div class="panel panel-default">					
+					<fp-topstocks #topMV [stocks]="allStocks" title="Market Value ($)" [orderBy]="'marketValue'"
 							sortOrder="dsc">
 					</fp-topstocks>
 				</div>
 			</div>
-			<div class="col-md-4 panel-footer">
-				<div class="text-center">
+			<div class="col-md-4">
+				<div class="chart-title">
 					<h5><strong> Top Stocks by Net P/L </strong> </h5>
 				</div>
-				<div>
-					<fp-topstocks #topPL [watchlists]="watchlists" title="Net P/L ($)" [orderBy]="'netPnL'"
+				<div class="panel panel-default">
+					<fp-topstocks #topPL [stocks]="allStocks" title="Net P/L ($)" [orderBy]="'netPnL'"
 							sortOrder="dsc">
 					</fp-topstocks>
 				</div>
 			</div>
-			<div class="col-md-4 panel-footer">
-				<div class="text-center">
+			<div class="col-md-4">
+				<div class="chart-title">
 					<h5><strong> Top Stocks by Day Change </strong> </h5>
 				</div>
-				<div>
-					<fp-topstocks #topDC [watchlists]="watchlists" title="Day Change ($)" [orderBy]="'dayChange'"
+				<div class="panel panel-default">	
+					<fp-topstocks #topDC [stocks]="allStocks" title="Day Change ($)" [orderBy]="'dayChange'"
 							sortOrder="dsc">
 					</fp-topstocks>
 				</div>
 			</div>
-
 		</div>
 	</div>
 </div>

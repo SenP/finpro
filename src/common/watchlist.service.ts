@@ -73,18 +73,15 @@ export class WatchlistService {
     let watchlistsRaw: Object[] = JSON.parse(localStorage.getItem("fpwatchlists"));
     if (watchlistsRaw) {
       watchlistsRaw.forEach(wlraw => {
-        //console.log(wlraw);
         let newWL: Watchlist = Object.assign(new Watchlist(), wlraw);
         newWL.instruments = []; //reset so we can create and assign watchlist items      
         wlraw.instruments.forEach(ins => {
           let newWLItem = Object.assign(new WatchlistItem(), ins);
           newWL.instruments.push(newWLItem);
         });
-        //console.log(newWL);
         this.watchlists.push(newWL);
       });
     }
-    console.log(this.watchlists);
     return this.watchlists;
   }
 
