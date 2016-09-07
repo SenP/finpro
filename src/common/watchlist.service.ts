@@ -10,65 +10,10 @@ export class WatchlistService {
 
   private watchlists: Array<Watchlist> = [];
 
-  constructor(private quoteService: QuoteService) {
-    //1st
-    this.watchlists.push(Object.assign(new Watchlist(), {
-      id: 1,
-      name: 'US',
-      description: "technology stocks",
-      owner: 'sk',
-      instruments: []
-    }));
-
-    this.watchlists[0].instruments.push(Object.assign(new WatchlistItem(), {
-      instrument: 'GOOG',
-      exchange: 'NASDAQ',
-      unitsOwned: 100,
-      avgPrice: 50
-    }));
-
-    //2nd
-    this.watchlists.push(Object.assign(new Watchlist(), {
-      id: 2,
-      name: 'UK',
-      description: "UK stocks",
-      owner: 'sk',
-      instruments: []
-    }));
-    this.watchlists[1].instruments.push(Object.assign(new WatchlistItem(), {
-      instrument: 'AZN',
-      exchange: 'LON',
-      unitsOwned: 20,
-      avgPrice: 5000
-    }));
-
-    //3rd
-    this.watchlists.push(Object.assign(new Watchlist(), {
-      id: 3,
-      name: 'India',
-      description: "Indian stocks",
-      owner: 'sk',
-      instruments: []
-    }));
-    this.watchlists[2].instruments.push(Object.assign(new WatchlistItem(), {
-      instrument: 'INFY',
-      exchange: 'NSE',
-      unitsOwned: 100,
-      avgPrice: 1000
-    }));
-    this.watchlists[2].instruments.push(Object.assign(new WatchlistItem(), {
-      instrument: 'RELIANCE',
-      exchange: 'NSE',
-      unitsOwned: 100,
-      avgPrice: 900
-    }));
-
-  }
+  constructor(private quoteService: QuoteService) { }
 
   //Get the watchlists (modify later to take userid param)
   getWatchlists() {
-    //localStorage.clear();
-    //localStorage.setItem("fpwatchlists", JSON.stringify(this.watchlists));
     this.watchlists = [];
     let watchlistsRaw: Object[] = JSON.parse(localStorage.getItem("fpwatchlists"));
     if (watchlistsRaw) {

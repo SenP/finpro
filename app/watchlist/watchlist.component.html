@@ -27,8 +27,14 @@
 				</div>
 				<div class="form-group">
 					<label> Exchange: </label>
-					<input type="text" name="exchange" class="form-control input-sm" [(ngModel)]="editedItem.exchange"
-							[readonly]="isEditing" required> &nbsp; &nbsp;
+					<select name="exchange" class="form-control input-sm" [(ngModel)]="editedItem.exchange"
+							[disabled]="isEditing" required> 
+						<option *ngFor="let e of exchanges" value="e">{{ e }} </option>
+					</select>
+					<typeahead [list]="tickers" [searchProperty]="'Symbol'" [displayProperty]="'name'"
+							[maxSuggestions]="5" (suggestionSelected)="tickerSelected($event)" placeholder="Stock Code">
+					</typeahead>
+					&nbsp; &nbsp;
 				</div>
 				<div class="form-group">
 					<label> Units Owned: </label>

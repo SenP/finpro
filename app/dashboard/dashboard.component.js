@@ -1,4 +1,4 @@
-System.register(['rxjs/Rx', '@angular/core', '../common/watchlist.service', './fpchart.component', './topstocks.component'], function(exports_1, context_1) {
+System.register(['@angular/core', '../common/watchlist.service', '../common/quote.service', './fpchart.component', './topstocks.component'], function(exports_1, context_1) {
     "use strict";
     var __moduleName = context_1 && context_1.id;
     var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
@@ -10,18 +10,18 @@ System.register(['rxjs/Rx', '@angular/core', '../common/watchlist.service', './f
     var __metadata = (this && this.__metadata) || function (k, v) {
         if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
     };
-    var Rx_1, core_1, watchlist_service_1, fpchart_component_1, topstocks_component_1;
+    var core_1, watchlist_service_1, quote_service_1, fpchart_component_1, topstocks_component_1;
     var DashboardComponent;
     return {
         setters:[
-            function (Rx_1_1) {
-                Rx_1 = Rx_1_1;
-            },
             function (core_1_1) {
                 core_1 = core_1_1;
             },
             function (watchlist_service_1_1) {
                 watchlist_service_1 = watchlist_service_1_1;
+            },
+            function (quote_service_1_1) {
+                quote_service_1 = quote_service_1_1;
             },
             function (fpchart_component_1_1) {
                 fpchart_component_1 = fpchart_component_1_1;
@@ -31,8 +31,9 @@ System.register(['rxjs/Rx', '@angular/core', '../common/watchlist.service', './f
             }],
         execute: function() {
             DashboardComponent = (function () {
-                function DashboardComponent(watchlistService) {
+                function DashboardComponent(watchlistService, quoteService) {
                     this.watchlistService = watchlistService;
+                    this.quoteService = quoteService;
                     this.watchlists = [];
                     // Portfolio values
                     this.portfolioDaychange = 0;
@@ -41,20 +42,18 @@ System.register(['rxjs/Rx', '@angular/core', '../common/watchlist.service', './f
                 }
                 DashboardComponent.prototype.ngOnInit = function () {
                     var _this = this;
-                    //create refresh scheduler,  update dashboard and render charts
-                    this.refreshScheduler = Rx_1.Observable.timer(0, 5000);
-                    setTimeout(function () {
-                        _this.renderCharts();
-                        _this.updateDashboard();
-                    }, 400);
-                };
-                DashboardComponent.prototype.ngAfterViewInit = function () {
-                    var _this = this;
+                    // render charts and update dashboard        
+                    this.renderCharts();
+                    this.updateDashboard();
                     //subscribe to refresh scheduler and update dashboard at specified interval
-                    this.refreshScheduler
+                    this.refTimerSub = this.quoteService
+                        .getTimer()
                         .subscribe(function () {
                         _this.updateDashboard();
                     });
+                };
+                DashboardComponent.prototype.ngOnDestroy = function () {
+                    this.refTimerSub.unsubscribe();
                 };
                 DashboardComponent.prototype.renderCharts = function () {
                     this.setChartData();
@@ -83,11 +82,8 @@ System.register(['rxjs/Rx', '@angular/core', '../common/watchlist.service', './f
                     this.portfolioValue = portfolioValue;
                     this.portfolioPnL = portfolioPnL;
                     this.portfolioDaychange = portfolioDaychange;
-                    //update topstocks tables
+                    //update allstocks list
                     this.allStocks = stocks;
-                    this.topMV.update();
-                    this.topPL.update();
-                    this.topDC.update();
                 };
                 DashboardComponent.prototype.setChartData = function () {
                     var _this = this;
@@ -110,9 +106,7 @@ System.register(['rxjs/Rx', '@angular/core', '../common/watchlist.service', './f
                     this.chartData = chartData;
                 };
                 DashboardComponent.prototype.setChartOptions = function () {
-                    function tooltipFn(txt) {
-                        return '<strong>{x}</strong><br/> ' + txt + '<b>${point.y}</b>';
-                    }
+                    var tooltipFn = function (txt) { return '<strong>{x}</strong><br/> ' + txt + '<b>${point.y}</b>'; };
                     var chartStyle = { "font-family": "Lato,'Helvetica Neue', Helvetica, Arial,'sans-serif'" };
                     var optionsBaseChart = {
                         title: {
@@ -168,12 +162,19 @@ System.register(['rxjs/Rx', '@angular/core', '../common/watchlist.service', './f
                         },
                         plotOptions: {
                             pie: {
-                                innerSize: '50%'
+                                innerSize: '40%',
+                                center: ['50%', '50%'],
+                                borderColor: null
                             }
                         },
                         series: [{
                                 data: this.chartData.marketValues,
-                                dataLabels: { enabled: true, format: '{key}<br><b>${y}</b>' },
+                                dataLabels: {
+                                    enabled: true, format: '{key}<br><b>${y}</b>',
+                                    distance: 15,
+                                    connectorPadding: 5,
+                                    connectorWidth: 2
+                                },
                                 tooltip: { pointFormat: tooltipFn('Market Value:') }
                             }]
                     };
@@ -211,9 +212,9 @@ System.register(['rxjs/Rx', '@angular/core', '../common/watchlist.service', './f
                     core_1.Component({
                         selector: 'fp-dashboard',
                         templateUrl: 'app/dashboard/dashboard.component.html',
-                        styles: ["               \n                .chart-title {\n                    background: lightgrey;\n                    line-height: 1.5em;\n                    display: flex;\n                    text-align: center;\n                    justify-content: center;  \n                }              \n        "]
+                        styles: ["               \n                .chart-title {\n                    background: lightgrey;\n                    line-height: 1.5em;\n                    display: flex;\n                    text-align: center;\n                    justify-content: center;  \n                } \n                .chart-panel {\n                    padding-right: 5px;\n                }            \n        "]
                     }), 
-                    __metadata('design:paramtypes', [watchlist_service_1.WatchlistService])
+                    __metadata('design:paramtypes', [watchlist_service_1.WatchlistService, quote_service_1.QuoteService])
                 ], DashboardComponent);
                 return DashboardComponent;
             }());

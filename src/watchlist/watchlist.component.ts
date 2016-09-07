@@ -1,6 +1,7 @@
 import { Component, OnChanges, Input, ViewChild } from '@angular/core';
 import { WatchlistService } from '../common/watchlist.service';
 import { Watchlist, WatchlistItem } from '../common/watchlist.model';
+import { QuoteService } from '../common/quote.service';
 
 @Component({
     selector: 'fp-watchlist',
@@ -37,10 +38,17 @@ export class WatchlistComponent implements OnChanges {
         info: "msg text-center text-info"
     }
 
+    exchanges: string[] = ["NASDAQ", "NYSE", "ASX"];
+    tickers = [];
+
     @ViewChild('editCode') editCode;
     @ViewChild('editUnits') editUnits;
 
-    constructor(private watchlistService: WatchlistService) { }
+    constructor(private watchlistService: WatchlistService,
+        private quoteService: QuoteService) {
+            this.tickers = this.quoteService.getTickers();
+            console.log(this.tickers);
+    }
 
     ngOnChanges() {
         this.isEditing = false;
@@ -58,6 +66,11 @@ export class WatchlistComponent implements OnChanges {
         this.editedItem = Object.assign(new WatchlistItem(), stock);
         this.isEditing = true;
         setTimeout(() => this.editUnits.nativeElement.focus(), 100);
+    }
+
+    tickerSelected(t) {
+        console.log('ticker', t);
+        //this.editedItem.instrument = t;
     }
 
     saveWatchlistItem() {
@@ -96,12 +109,12 @@ export class WatchlistComponent implements OnChanges {
         //validate quantity
         if (isNaN(wli.unitsOwned)) {
             result.status = "error";
-            result.msg = "'Units owned' should be a number between 1 to 99,999,999,999";
+            result.msg = "'Units owned' should be a number";
             return result;
         }
-        if (wli.unitsOwned < 1 || wli.unitsOwned > 99999999999) {
+        if (wli.unitsOwned < 1 || wli.unitsOwned > 999999999) {
             result.status = "error";
-            result.msg = "'Units owned' should be between 1 to 99,999,999,999";
+            result.msg = "'Units owned' should be between 1 to 1 billion";
             return result;
         }
         //validate avg price

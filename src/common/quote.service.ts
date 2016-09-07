@@ -16,6 +16,8 @@ export class QuoteService {
     quotePublisher: Subject<any>;
     private quotesMap: Map<string, Quote>;
 
+    tickers = [];
+
     constructor(private jsonp: Jsonp, private http: Http) {
         this.quotesMap = new Map();
         this.quotePublisher = new Subject();
@@ -28,6 +30,11 @@ export class QuoteService {
             .subscribe(
             () => this.refreshQuotes()
             );
+        return this.quotePublisher;
+    }
+
+    // Method to get the timer
+    getTimer() {
         return this.quotePublisher;
     }
 
@@ -59,8 +66,6 @@ export class QuoteService {
 
     // Refresh the quotes map with latest quotes from API
     refreshQuotes() {
-        console.log('refreshing');
-
         if (this.quotesMap.size > 0) {
             let stockcodes = '';
 
@@ -89,19 +94,27 @@ export class QuoteService {
 
     // Update the quotes map with the new quote values from API (called from refreshQuotes method)
     updateQuotesMap(newquotes) {
-        console.log('new quotes', newquotes);
-        console.log('quotes map', this.quotesMap);
         newquotes.forEach(newquote => {
             let quote = this.quotesMap.get(newquote.e + ':' + newquote.t);
             if (quote) {
-                console.log('quote before', quote);
-                quote.lastPrice = parseFloat((newquote.l).replace(',', '')) * (Math.random() + 0.1);
+                quote.lastPrice = parseFloat((newquote.l).replace(',', '')) * (1 + (Math.random() > 0.5 ? 1 : -1) * 0.1);
                 quote.change = parseFloat((newquote.c).replace(',', '')) + (Math.random() - 0.5);
                 quote.percentChange = parseFloat(newquote.cp) + (Math.random() - 0.5);
-                console.log('quote after', quote);
             }
         });
     };
 
+    // Utility method to get list of tickers
+    getTickers() {
+        if (this.tickers.length === 0) {
+            this.http
+                .get("app/tickers-nasdaq.json")
+                .map(response => response.json())
+                .subscribe(tickers => {
+                    this.tickers = tickers;
+                });
+        }
+        return this.tickers;
+    }
 }
 

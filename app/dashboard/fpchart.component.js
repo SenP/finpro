@@ -23,7 +23,6 @@ System.register(['@angular/core', 'angular2-highcharts'], function(exports_1, co
         execute: function() {
             FPChartComponent = (function () {
                 function FPChartComponent() {
-                    //setInterval(() => console.log(this.chart.series[0].data[1].y), 1000);
                 }
                 FPChartComponent.prototype.saveInstance = function (chartInstance) {
                     this.chart = chartInstance;

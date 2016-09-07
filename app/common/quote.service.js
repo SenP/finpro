@@ -33,6 +33,7 @@ System.register(['@angular/core', '@angular/http', 'rxjs/Rx', 'rxjs/add/operator
                     this.jsonp = jsonp;
                     this.http = http;
                     this.base_url = 'http://finance.google.com/finance/info';
+                    this.tickers = [];
                     this.quotesMap = new Map();
                     this.quotePublisher = new Rx_1.Subject();
                 }
@@ -41,6 +42,10 @@ System.register(['@angular/core', '@angular/http', 'rxjs/Rx', 'rxjs/add/operator
                     var _this = this;
                     this.quoteScheduler = Rx_1.Observable.timer(0, refInterval)
                         .subscribe(function () { return _this.refreshQuotes(); });
+                    return this.quotePublisher;
+                };
+                // Method to get the timer
+                QuoteService.prototype.getTimer = function () {
                     return this.quotePublisher;
                 };
                 // Reset the scheduler to the given interval
@@ -70,7 +75,6 @@ System.register(['@angular/core', '@angular/http', 'rxjs/Rx', 'rxjs/add/operator
                 // Refresh the quotes map with latest quotes from API
                 QuoteService.prototype.refreshQuotes = function () {
                     var _this = this;
-                    console.log('refreshing');
                     if (this.quotesMap.size > 0) {
                         var stockcodes_1 = '';
                         //create stock codes list
@@ -95,20 +99,29 @@ System.register(['@angular/core', '@angular/http', 'rxjs/Rx', 'rxjs/add/operator
                 // Update the quotes map with the new quote values from API (called from refreshQuotes method)
                 QuoteService.prototype.updateQuotesMap = function (newquotes) {
                     var _this = this;
-                    console.log('new quotes', newquotes);
-                    console.log('quotes map', this.quotesMap);
                     newquotes.forEach(function (newquote) {
                         var quote = _this.quotesMap.get(newquote.e + ':' + newquote.t);
                         if (quote) {
-                            console.log('quote before', quote);
-                            quote.lastPrice = parseFloat((newquote.l).replace(',', '')) * (Math.random() + 0.1);
+                            quote.lastPrice = parseFloat((newquote.l).replace(',', '')) * (1 + (Math.random() > 0.5 ? 1 : -1) * 0.1);
                             quote.change = parseFloat((newquote.c).replace(',', '')) + (Math.random() - 0.5);
                             quote.percentChange = parseFloat(newquote.cp) + (Math.random() - 0.5);
-                            console.log('quote after', quote);
                         }
                     });
                 };
                 ;
+                // Utility method to get list of tickers
+                QuoteService.prototype.getTickers = function () {
+                    var _this = this;
+                    if (this.tickers.length === 0) {
+                        this.http
+                            .get("app/tickers-nasdaq.json")
+                            .map(function (response) { return response.json(); })
+                            .subscribe(function (tickers) {
+                            _this.tickers = tickers;
+                        });
+                    }
+                    return this.tickers;
+                };
                 QuoteService = __decorate([
                     core_1.Injectable(), 
                     __metadata('design:paramtypes', [http_1.Jsonp, http_1.Http])

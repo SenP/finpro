@@ -1,7 +1,8 @@
-import { Observable, Subscription, Subject } from 'rxjs/Rx';
-import { Component, Input, ViewChild, OnInit, AfterViewInit } from '@angular/core';
+import { Subscription } from 'rxjs/Rx';
+import { Component, Input, ViewChild, OnInit, OnDestroy } from '@angular/core';
 import { Watchlist, WatchlistItem } from '../common/watchlist.model';
 import { WatchlistService } from '../common/watchlist.service';
+import { QuoteService } from '../common/quote.service';
 import { FPChartComponent } from './fpchart.component';
 import { TopstocksComponent } from './topstocks.component';
 
@@ -15,11 +16,14 @@ import { TopstocksComponent } from './topstocks.component';
                     display: flex;
                     text-align: center;
                     justify-content: center;  
-                }              
+                } 
+                .chart-panel {
+                    padding-right: 5px;
+                }            
         `]
 })
 
-export class DashboardComponent implements OnInit, AfterViewInit {
+export class DashboardComponent implements OnInit, OnDestroy {
 
     @Input() watchlists: Watchlist[] = [];
 
@@ -45,31 +49,29 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     portfolioValue = 0;
 
     // Refresh scheduler
-    refreshScheduler: Observable<number>;
-    
+    refTimerSub: Subscription;
+
     //All stocks
     allStocks: WatchlistItem[];
 
-    constructor(private watchlistService: WatchlistService) { }
+    constructor(private watchlistService: WatchlistService,
+        private quoteService: QuoteService) { }
 
     ngOnInit() {
+        // render charts and update dashboard        
+        this.renderCharts(); 
+        this.updateDashboard();        
 
-        //create refresh scheduler,  update dashboard and render charts
-        this.refreshScheduler = Observable.timer(0, 5000);
-
-        setTimeout(() => {
-            this.renderCharts();
-            this.updateDashboard();
-        }, 400);
-
-    }
-
-    ngAfterViewInit() {
         //subscribe to refresh scheduler and update dashboard at specified interval
-        this.refreshScheduler
+        this.refTimerSub = this.quoteService
+            .getTimer()
             .subscribe(() => {
                 this.updateDashboard();
             });
+    }   
+
+    ngOnDestroy() {
+        this.refTimerSub.unsubscribe();
     }
 
     renderCharts() {
@@ -100,11 +102,8 @@ export class DashboardComponent implements OnInit, AfterViewInit {
         this.portfolioValue = portfolioValue;
         this.portfolioPnL = portfolioPnL;
         this.portfolioDaychange = portfolioDaychange;
-        //update topstocks tables
+        //update allstocks list
         this.allStocks = stocks;
-        this.topMV.update();
-        this.topPL.update();
-        this.topDC.update();
     }
 
     setChartData() {
@@ -132,9 +131,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
 
     setChartOptions() {
 
-        function tooltipFn(txt) {
-            return '<strong>{x}</strong><br/> ' + txt + '<b>${point.y}</b>';
-        }
+        let tooltipFn = (txt) => '<strong>{x}</strong><br/> ' + txt + '<b>${point.y}</b>';
 
         let chartStyle = { "font-family": "Lato,'Helvetica Neue', Helvetica, Arial,'sans-serif'" };
 
@@ -195,12 +192,19 @@ export class DashboardComponent implements OnInit, AfterViewInit {
             },
             plotOptions: {
                 pie: {
-                    innerSize: '50%'
+                    innerSize: '40%',
+                    center: ['50%', '50%'],
+                    borderColor: null
                 }
             },
             series: [{
                 data: this.chartData.marketValues,
-                dataLabels: { enabled: true, format: '{key}<br><b>${y}</b>' },
+                dataLabels: {
+                    enabled: true, format: '{key}<br><b>${y}</b>',
+                    distance: 15,
+                    connectorPadding: 5,
+                    connectorWidth: 2
+                },
                 tooltip: { pointFormat: tooltipFn('Market Value:') }
             }]
         };

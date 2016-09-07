@@ -41,8 +41,8 @@ System.register(['@angular/core', './common/watchlist.service', './common/quote.
                             _this.quoteService.register(stock.instrument, stock.exchange);
                         });
                     });
-                    this.qsub = this.quoteService.init(this.refInterval * 1000);
-                    this.qsub
+                    this.quoteService
+                        .init(this.refInterval * 1000)
                         .subscribe(function (qmap) {
                         _this.watchlistService.updateQuotes(qmap);
                     });
@@ -51,12 +51,7 @@ System.register(['@angular/core', './common/watchlist.service', './common/quote.
                     this.selectedWatchlist = wl;
                 };
                 AppComponent.prototype.onChangeTimer = function () {
-                    // this.qsub.unsubscribe();
                     this.quoteService.resetTimer(this.refInterval * 1000);
-                    // this.qsub        
-                    //     .subscribe(qmap => {
-                    //         this.watchlistService.updateQuotes(qmap);
-                    //     });
                 };
                 AppComponent = __decorate([
                     core_1.Component({

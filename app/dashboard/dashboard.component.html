@@ -32,7 +32,7 @@
 				<div class="chart-title">
 					<h5><strong> Market Value by Watchlist </strong> </h5>
 				</div>
-				<div class="panel panel-default">
+				<div class="panel panel-default chart-panel">
 					<fp-chart #marketvalueChart [config]="optionsMarketValueChart"></fp-chart>
 				</div>
 			</div>
@@ -41,7 +41,7 @@
 				<div class="chart-title">
 					<h5><strong> Net P/L by Watchlist </strong> </h5>
 				</div>
-				<div class="panel panel-default">				
+				<div class="panel panel-default chart-panel">				
 					<fp-chart #pnlChart [config]="optionsPnLChart"></fp-chart>
 				</div>
 			</div>
@@ -50,12 +50,12 @@
 				<div class="chart-title">
 					<h5><strong> Day Change by Watchlist </strong> </h5>
 				</div>
-				<div class="panel panel-default">
+				<div class="panel panel-default chart-panel">
 					<fp-chart #daychangeChart [config]="optionsDaychangeChart"></fp-chart>
 				</div>
 			</div>
 		</div>
-		&nbsp;&nbsp;
+		&nbsp;
 		<!--Top stocks tables-->
 		<div class="row">
 			<div class="col-md-4">

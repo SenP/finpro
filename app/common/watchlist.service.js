@@ -28,60 +28,10 @@ System.register(['@angular/core', './watchlist.model', '../common/quote.service'
                 function WatchlistService(quoteService) {
                     this.quoteService = quoteService;
                     this.watchlists = [];
-                    //1st
-                    this.watchlists.push(Object.assign(new watchlist_model_1.Watchlist(), {
-                        id: 1,
-                        name: 'US',
-                        description: "technology stocks",
-                        owner: 'sk',
-                        instruments: []
-                    }));
-                    this.watchlists[0].instruments.push(Object.assign(new watchlist_model_1.WatchlistItem(), {
-                        instrument: 'GOOG',
-                        exchange: 'NASDAQ',
-                        unitsOwned: 100,
-                        avgPrice: 50
-                    }));
-                    //2nd
-                    this.watchlists.push(Object.assign(new watchlist_model_1.Watchlist(), {
-                        id: 2,
-                        name: 'UK',
-                        description: "UK stocks",
-                        owner: 'sk',
-                        instruments: []
-                    }));
-                    this.watchlists[1].instruments.push(Object.assign(new watchlist_model_1.WatchlistItem(), {
-                        instrument: 'AZN',
-                        exchange: 'LON',
-                        unitsOwned: 20,
-                        avgPrice: 5000
-                    }));
-                    //3rd
-                    this.watchlists.push(Object.assign(new watchlist_model_1.Watchlist(), {
-                        id: 3,
-                        name: 'India',
-                        description: "Indian stocks",
-                        owner: 'sk',
-                        instruments: []
-                    }));
-                    this.watchlists[2].instruments.push(Object.assign(new watchlist_model_1.WatchlistItem(), {
-                        instrument: 'INFY',
-                        exchange: 'NSE',
-                        unitsOwned: 100,
-                        avgPrice: 1000
-                    }));
-                    this.watchlists[2].instruments.push(Object.assign(new watchlist_model_1.WatchlistItem(), {
-                        instrument: 'RELIANCE',
-                        exchange: 'NSE',
-                        unitsOwned: 100,
-                        avgPrice: 900
-                    }));
                 }
                 //Get the watchlists (modify later to take userid param)
                 WatchlistService.prototype.getWatchlists = function () {
                     var _this = this;
-                    //localStorage.clear();
-                    //localStorage.setItem("fpwatchlists", JSON.stringify(this.watchlists));
                     this.watchlists = [];
                     var watchlistsRaw = JSON.parse(localStorage.getItem("fpwatchlists"));
                     if (watchlistsRaw) {

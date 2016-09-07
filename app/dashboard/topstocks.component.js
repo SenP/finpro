@@ -30,7 +30,10 @@ System.register(['@angular/core', '../common/watchlist.service', '../common/filt
                     this.filterList = filterList;
                     this.topStocks = [];
                 }
-                TopstocksComponent.prototype.update = function () {
+                TopstocksComponent.prototype.ngOnInit = function () {
+                    this.topStocks = this.filterList.transform(this.allStocks, this.orderBy, this.numRequired, this.sortOrder);
+                };
+                TopstocksComponent.prototype.ngOnChanges = function () {
                     this.topStocks = this.filterList.transform(this.allStocks, this.orderBy, this.numRequired, this.sortOrder);
                 };
                 __decorate([

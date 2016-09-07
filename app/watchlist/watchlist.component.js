@@ -1,4 +1,4 @@
-System.register(['@angular/core', '../common/watchlist.service', '../common/watchlist.model'], function(exports_1, context_1) {
+System.register(['@angular/core', '../common/watchlist.service', '../common/watchlist.model', '../common/quote.service'], function(exports_1, context_1) {
     "use strict";
     var __moduleName = context_1 && context_1.id;
     var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
@@ -10,7 +10,7 @@ System.register(['@angular/core', '../common/watchlist.service', '../common/watc
     var __metadata = (this && this.__metadata) || function (k, v) {
         if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
     };
-    var core_1, watchlist_service_1, watchlist_model_1;
+    var core_1, watchlist_service_1, watchlist_model_1, quote_service_1;
     var WatchlistComponent;
     return {
         setters:[
@@ -22,11 +22,15 @@ System.register(['@angular/core', '../common/watchlist.service', '../common/watc
             },
             function (watchlist_model_1_1) {
                 watchlist_model_1 = watchlist_model_1_1;
+            },
+            function (quote_service_1_1) {
+                quote_service_1 = quote_service_1_1;
             }],
         execute: function() {
             WatchlistComponent = (function () {
-                function WatchlistComponent(watchlistService) {
+                function WatchlistComponent(watchlistService, quoteService) {
                     this.watchlistService = watchlistService;
+                    this.quoteService = quoteService;
                     this.watchlist = null;
                     this.isEditing = false;
                     this.isAdding = false;
@@ -36,6 +40,10 @@ System.register(['@angular/core', '../common/watchlist.service', '../common/watc
                         error: " msg text-center text-danger",
                         info: "msg text-center text-info"
                     };
+                    this.exchanges = ["NASDAQ", "NYSE", "ASX"];
+                    this.tickers = [];
+                    this.tickers = this.quoteService.getTickers();
+                    console.log(this.tickers);
                 }
                 WatchlistComponent.prototype.ngOnChanges = function () {
                     this.isEditing = false;
@@ -53,6 +61,10 @@ System.register(['@angular/core', '../common/watchlist.service', '../common/watc
                     this.editedItem = Object.assign(new watchlist_model_1.WatchlistItem(), stock);
                     this.isEditing = true;
                     setTimeout(function () { return _this.editUnits.nativeElement.focus(); }, 100);
+                };
+                WatchlistComponent.prototype.tickerSelected = function (t) {
+                    console.log('ticker', t);
+                    //this.editedItem.instrument = t;
                 };
                 WatchlistComponent.prototype.saveWatchlistItem = function () {
                     var _this = this;
@@ -89,12 +101,12 @@ System.register(['@angular/core', '../common/watchlist.service', '../common/watc
                     //validate quantity
                     if (isNaN(wli.unitsOwned)) {
                         result.status = "error";
-                        result.msg = "'Units owned' should be a number between 1 to 99,999,999,999";
+                        result.msg = "'Units owned' should be a number";
                         return result;
                     }
-                    if (wli.unitsOwned < 1 || wli.unitsOwned > 99999999999) {
+                    if (wli.unitsOwned < 1 || wli.unitsOwned > 999999999) {
                         result.status = "error";
-                        result.msg = "'Units owned' should be between 1 to 99,999,999,999";
+                        result.msg = "'Units owned' should be between 1 to 1 billion";
                         return result;
                     }
                     //validate avg price
@@ -149,7 +161,7 @@ System.register(['@angular/core', '../common/watchlist.service', '../common/watc
                         templateUrl: 'app/watchlist/watchlist.component.html',
                         styles: ["           \n                .number-field {\n                    text-align: right\n                }\n\n                .panel-heading {\n                    font-size: 2em;\n                }\n                .msg {\n                    font-style: italic;\n                    font-size: 1.2em;\n                    background: #ecf0f1;\n                }\n            "]
                     }), 
-                    __metadata('design:paramtypes', [watchlist_service_1.WatchlistService])
+                    __metadata('design:paramtypes', [watchlist_service_1.WatchlistService, quote_service_1.QuoteService])
                 ], WatchlistComponent);
                 return WatchlistComponent;
             }());

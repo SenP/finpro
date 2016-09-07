@@ -17,11 +17,7 @@ import { CHART_DIRECTIVES, ChartComponent } from 'angular2-highcharts';
 })
 export class FPChartComponent {
     @Input() config;
-    chart: ChartComponent;
-
-    constructor() {
-        //setInterval(() => console.log(this.chart.series[0].data[1].y), 1000);
-    }
+    chart: ChartComponent;   
 
     saveInstance(chartInstance) {
         this.chart = chartInstance;
