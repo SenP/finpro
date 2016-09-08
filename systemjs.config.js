@@ -7,7 +7,8 @@
     '@angular':                   'node_modules/@angular',
     'angular2-highcharts':        'node_modules/angular2-highcharts/dist', 
     'highcharts/highstock.src':   'node_modules/angular2-highcharts/dist/highstock.js',
-    'ng2-typeahead':              'node_modules/ng2-typeahead'
+    'ng2-bootstrap/ng2-bootstrap': 'node_modules/ng2-bootstrap',
+    'moment':                      'node_modules/moment',
   };
 
   // packages tells the System loader how to load when no filename and/or no extension
@@ -15,7 +16,8 @@
     'app':                        { main: 'main.js',  defaultExtension: 'js' },
     'rxjs':                       { defaultExtension: 'js' },
     'angular2-highcharts' :       { main: 'index', format: 'cjs', defaultExtension: 'js' },
-    'ng2-typeahead':              { main: 'ng2-typeahead', defaultExtension: 'js' }
+    'ng2-bootstrap/ng2-bootstrap': { main: 'ng2-bootstrap', defaultExtension: 'js' },
+    'moment':                     { main: 'moment', defaultExtension: 'js' }
   };
 
   var packageNames = [

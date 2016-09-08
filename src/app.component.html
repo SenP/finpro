@@ -5,18 +5,18 @@
         <div class="col-md-3 side-bar">
             <!--button for dashboard view-->
 			<div>
-				<button class="btn btn-default center-block" (click)="wl.onChangeSelection(null)">
+				<button class="btn btn-success center-block" (click)="wl.onChangeSelection(null)">
                       View Dashboard
                 </button>
 				<br>
 				<div>
-					<label> Quotes refresh interval: </label>
+					<label> Price update interval: </label>
 					<select name="timer" [(ngModel)]="refInterval">
 						<option *ngFor="let f of refFreqs" [value]="f"> {{ f }}</option>
 					</select>					
 					<label> seconds </label> &nbsp;
 					<button class="btn btn-default btn-xs" (click)="onChangeTimer()">
-                      	Update
+                      	Change
                 	</button>
 				</div>
 			</div>

@@ -97,9 +97,9 @@ export class QuoteService {
         newquotes.forEach(newquote => {
             let quote = this.quotesMap.get(newquote.e + ':' + newquote.t);
             if (quote) {
-                quote.lastPrice = parseFloat((newquote.l).replace(',', '')) * (1 + (Math.random() > 0.5 ? 1 : -1) * 0.1);
-                quote.change = parseFloat((newquote.c).replace(',', '')) + (Math.random() - 0.5);
-                quote.percentChange = parseFloat(newquote.cp) + (Math.random() - 0.5);
+                quote.lastPrice = parseFloat((newquote.l).replace(',', '')); // * (1 + (Math.random() > 0.5 ? 1 : -1) * 0.1);
+                quote.change = parseFloat((newquote.c).replace(',', '')); //+ (Math.random() - 0.5);
+                quote.percentChange = parseFloat(newquote.cp); // + (Math.random() - 0.5);
             }
         });
     };
@@ -108,7 +108,7 @@ export class QuoteService {
     getTickers() {
         if (this.tickers.length === 0) {
             this.http
-                .get("app/tickers-nasdaq.json")
+                .get("app/tickers-list.json")
                 .map(response => response.json())
                 .subscribe(tickers => {
                     this.tickers = tickers;

@@ -48,7 +48,6 @@ System.register(['@angular/core', '@angular/http', 'rxjs/Rx', 'rxjs/add/operator
                 QuoteService.prototype.register = function (stock) {
                     if (!this.quotesMap.get(stock)) {
                         this.quotesMap.set(stock, new quote_model_1.Quote());
-                        console.log(this.quotesMap, stock);
                     }
                 };
                 ;
@@ -78,13 +77,11 @@ System.register(['@angular/core', '@angular/http', 'rxjs/Rx', 'rxjs/add/operator
                         this.jsonp
                             .get(this.base_url, { search: params })
                             .map(function (response) {
-                            console.log(response.json());
                             return response.json();
                         })
                             .subscribe(function (response) {
                             // let newquotes = response.query.count > 1 ? response.query.results.quote : [response.query.results.quote];
                             // this.updateQuotes(newquotes);
-                            // console.log(this.quotesMap);
                             // Publish new quotes
                             // this.quotePublisher.next(this.quotesMap);
                         });

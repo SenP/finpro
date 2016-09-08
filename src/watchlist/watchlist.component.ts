@@ -40,14 +40,15 @@ export class WatchlistComponent implements OnChanges {
 
     exchanges: string[] = ["NASDAQ", "NYSE", "ASX"];
     tickers = [];
+    selectStkCode;
+    selectStkName;
 
     @ViewChild('editCode') editCode;
     @ViewChild('editUnits') editUnits;
 
     constructor(private watchlistService: WatchlistService,
         private quoteService: QuoteService) {
-            this.tickers = this.quoteService.getTickers();
-            console.log(this.tickers);
+        this.tickers = this.quoteService.getTickers();
     }
 
     ngOnChanges() {
@@ -57,20 +58,23 @@ export class WatchlistComponent implements OnChanges {
     }
 
     addWatchlistItem() {
-        this.editedItem = new WatchlistItem();
         this.isAdding = true;
+        this.editedItem = new WatchlistItem();
         setTimeout(() => this.editCode.nativeElement.focus(), 100);
     }
 
     editWatchlistItem(stock: WatchlistItem) {
-        this.editedItem = Object.assign(new WatchlistItem(), stock);
         this.isEditing = true;
+        this.editedItem = Object.assign(new WatchlistItem(), stock);
+        this.selectStkCode = this.editedItem.instrument;
+        this.selectStkName = this.tickers.filter(t => t.Symbol === stock.instrument)[0].Name;
         setTimeout(() => this.editUnits.nativeElement.focus(), 100);
     }
 
-    tickerSelected(t) {
-        console.log('ticker', t);
-        //this.editedItem.instrument = t;
+    onStockSelect(t) {
+        this.editedItem.exchange = t.item.Exchange;
+        this.selectStkCode = t.item.Symbol;
+        this.selectStkName = t.item.Name;
     }
 
     saveWatchlistItem() {
@@ -120,14 +124,15 @@ export class WatchlistComponent implements OnChanges {
         //validate avg price
         if (isNaN(wli.avgPrice)) {
             result.status = "error";
-            result.msg = "'Avg buy price' should be a number";
+            result.msg = "'Buy price' should be a number";
             return result;
         }
         if (wli.avgPrice <= 0 || wli.avgPrice >= 10000) {
             result.status = "error";
-            result.msg = "'Avg buy price' should be more than 0 and less than 10000";
+            result.msg = "'Buy price' should be more than 0 and less than 10000";
             return result;
         }
+
         return result;
     }
 
@@ -147,6 +152,8 @@ export class WatchlistComponent implements OnChanges {
 
     resetView() {
         this.editedItem = null;
+        this.selectStkCode = null;
+        this.selectStkName = null;
         this.isEditing = false;
         this.isAdding = false;
         this.isDeleting = false;

@@ -46,6 +46,8 @@ System.register(['@angular/core', './common/watchlist.service', './common/quote.
                         .subscribe(function (qmap) {
                         _this.watchlistService.updateQuotes(qmap);
                     });
+                    // Load the tickers
+                    this.quoteService.getTickers();
                 };
                 AppComponent.prototype.onSelect = function (wl) {
                     this.selectedWatchlist = wl;

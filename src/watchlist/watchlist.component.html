@@ -18,41 +18,45 @@
 				to this watchlist.</p>
 		</div>
 		<!--Display form for editing/adding stocks-->
-		<div *ngIf="isEditing || isAdding">
-			<form #f="ngForm" (ngSubmit)="saveWatchlistItem()" class="form-inline">
-				<div class="form-group">
-					<label> Stock: </label>
-					<input #editCode type="text" name="instrument" class="form-control input-sm" [(ngModel)]="editedItem.instrument"
-							[readonly]="isEditing" required> &nbsp; &nbsp;
+		<div *ngIf="isEditing || isAdding" class="panel panel-default">
+			<div class="panel-heading text-center">
+				<span> <h5> <strong> {{ isAdding ? "Add Stock" : "Edit Stock" }} </strong> </h5> </span>
+			</div>
+			<div class="panel-body table-responsive">
+				<form #f="ngForm" (ngSubmit)="saveWatchlistItem()" class="form-inline">
+					<div class="form-group">
+						<label> Stock: </label>
+						<template #customItemTemplate let-model="item">
+    						<h5> {{model.Name}} </h5> <h6><em>Code: {{model.Symbol}} &emsp; Exchange: {{model.Exchange}}</em></h6>
+  						</template>
+						<input #editCode name="instrument" class="form-control input-sm" [(ngModel)]="editedItem.instrument"
+								[typeahead]="tickers" (typeaheadOnSelect)="onStockSelect($event)" [typeaheadOptionsLimit]="7"
+								[typeaheadItemTemplate]="customItemTemplate" typeaheadOptionField="Symbol"
+								[typeaheadMinLength]="0" placeholder="Stock Code..." [disabled]="isEditing"
+								autocomplete="off" required>
+						&nbsp;
+						<span><em> {{ selectStkName }} / {{ editedItem.exchange }} </em> </span>						 
+						&emsp; 
+					</div>			
+					<div class="form-group">
+						<label> Units Owned: </label>
+						<input #editUnits type="text" name="unitsOwned" class="form-control input-sm" [(ngModel)]="editedItem.unitsOwned"
+								required> &nbsp;
+					</div>
+					&emsp; 
+					<div class="form-group">
+						<label> Buy Price: $ </label>
+						<input type="text" name="avgPrice" class="form-control input-sm" [(ngModel)]="editedItem.avgPrice"
+								required>
+					</div>
+					&emsp; 
+					<button type="submit" class="btn btn-primary btn-sm" [disabled]="!f.valid">Save</button>
+					<button type="button" class="btn btn-danger btn-sm" (click)="resetView()">Cancel</button>
+				</form>
+				<div *ngIf="msg" [class]="msgClass"> {{ msg }}
+					<button type="button" class="close" (click)="msg = null"><span>&times;</span></button>
 				</div>
-				<div class="form-group">
-					<label> Exchange: </label>
-					<select name="exchange" class="form-control input-sm" [(ngModel)]="editedItem.exchange"
-							[disabled]="isEditing" required> 
-						<option *ngFor="let e of exchanges" value="e">{{ e }} </option>
-					</select>
-					<typeahead [list]="tickers" [searchProperty]="'Symbol'" [displayProperty]="'name'"
-							[maxSuggestions]="5" (suggestionSelected)="tickerSelected($event)" placeholder="Stock Code">
-					</typeahead>
-					&nbsp; &nbsp;
-				</div>
-				<div class="form-group">
-					<label> Units Owned: </label>
-					<input #editUnits type="text" name="unitsOwned" class="form-control input-sm" [(ngModel)]="editedItem.unitsOwned"
-							required> &nbsp;
-				</div>
-				<div class="form-group">
-					<label> Avg. Buy Price: $ </label>
-					<input type="text" name="avgPrice" class="form-control input-sm" [(ngModel)]="editedItem.avgPrice"
-							required>
-				</div>
-				&nbsp;&nbsp;
-				<button type="submit" class="btn btn-primary btn-sm" [disabled]="!f.valid">Save</button>
-				<button type="button" class="btn btn-danger btn-sm" (click)="resetView()">Cancel</button>
-			</form>
-		</div>
-		<div *ngIf="msg" [class]="msgClass"> {{ msg }}
-			<button type="button" class="close" (click)="msg = null"><span>&times;</span></button>
+			</div>
 		</div>
 	</div>
 	<!--Display the table-->
@@ -63,7 +67,7 @@
 				<th>Stock Code </th>
 				<th>Exchange </th>
 				<th class="number-field">Units Owned </th>
-				<th class="number-field">Avg Buy Price ($) </th>
+				<th class="number-field">Buy Price ($) </th>
 				<th class="number-field">Last Traded Price ($) </th>
 				<th class="number-field">Change ($) </th>
 				<th class="number-field">Change (%) </th>
@@ -115,4 +119,7 @@
 			</tr>
 		</tbody>
 	</table>
+	<div>		
+		<span class="pull-right"> <br> <small> Price data from Google Finance and may be delayed. </small> </span>
+	</div>
 </div>

@@ -44,6 +44,9 @@ export class AppComponent implements OnInit {
             .subscribe(qmap => {
                 this.watchlistService.updateQuotes(qmap);
             });
+            
+        // Load the tickers
+        this.quoteService.getTickers();
     }
 
     onSelect(wl) {

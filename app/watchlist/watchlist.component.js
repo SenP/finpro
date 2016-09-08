@@ -43,7 +43,6 @@ System.register(['@angular/core', '../common/watchlist.service', '../common/watc
                     this.exchanges = ["NASDAQ", "NYSE", "ASX"];
                     this.tickers = [];
                     this.tickers = this.quoteService.getTickers();
-                    console.log(this.tickers);
                 }
                 WatchlistComponent.prototype.ngOnChanges = function () {
                     this.isEditing = false;
@@ -52,19 +51,22 @@ System.register(['@angular/core', '../common/watchlist.service', '../common/watc
                 };
                 WatchlistComponent.prototype.addWatchlistItem = function () {
                     var _this = this;
-                    this.editedItem = new watchlist_model_1.WatchlistItem();
                     this.isAdding = true;
+                    this.editedItem = new watchlist_model_1.WatchlistItem();
                     setTimeout(function () { return _this.editCode.nativeElement.focus(); }, 100);
                 };
                 WatchlistComponent.prototype.editWatchlistItem = function (stock) {
                     var _this = this;
-                    this.editedItem = Object.assign(new watchlist_model_1.WatchlistItem(), stock);
                     this.isEditing = true;
+                    this.editedItem = Object.assign(new watchlist_model_1.WatchlistItem(), stock);
+                    this.selectStkCode = this.editedItem.instrument;
+                    this.selectStkName = this.tickers.filter(function (t) { return t.Symbol === stock.instrument; })[0].Name;
                     setTimeout(function () { return _this.editUnits.nativeElement.focus(); }, 100);
                 };
-                WatchlistComponent.prototype.tickerSelected = function (t) {
-                    console.log('ticker', t);
-                    //this.editedItem.instrument = t;
+                WatchlistComponent.prototype.onStockSelect = function (t) {
+                    this.editedItem.exchange = t.item.Exchange;
+                    this.selectStkCode = t.item.Symbol;
+                    this.selectStkName = t.item.Name;
                 };
                 WatchlistComponent.prototype.saveWatchlistItem = function () {
                     var _this = this;
@@ -112,12 +114,12 @@ System.register(['@angular/core', '../common/watchlist.service', '../common/watc
                     //validate avg price
                     if (isNaN(wli.avgPrice)) {
                         result.status = "error";
-                        result.msg = "'Avg buy price' should be a number";
+                        result.msg = "'Buy price' should be a number";
                         return result;
                     }
                     if (wli.avgPrice <= 0 || wli.avgPrice >= 10000) {
                         result.status = "error";
-                        result.msg = "'Avg buy price' should be more than 0 and less than 10000";
+                        result.msg = "'Buy price' should be more than 0 and less than 10000";
                         return result;
                     }
                     return result;
@@ -137,6 +139,8 @@ System.register(['@angular/core', '../common/watchlist.service', '../common/watc
                 };
                 WatchlistComponent.prototype.resetView = function () {
                     this.editedItem = null;
+                    this.selectStkCode = null;
+                    this.selectStkName = null;
                     this.isEditing = false;
                     this.isAdding = false;
                     this.isDeleting = false;
