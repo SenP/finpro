@@ -32,8 +32,9 @@ System.register(['@angular/core', '@angular/http', 'rxjs/Rx', 'rxjs/add/operator
                 function QuoteService(jsonp, http) {
                     this.jsonp = jsonp;
                     this.http = http;
+                    // Quotes service gets all quotes from Google Finance 
                     this.base_url = 'http://finance.google.com/finance/info';
-                    this.tickers = [];
+                    this.tickers = []; // List of all supported tickers in NASDAQ, NYSE and ASX exchanges
                     this.quotesMap = new Map();
                     this.quotePublisher = new Rx_1.Subject();
                 }
@@ -77,21 +78,24 @@ System.register(['@angular/core', '@angular/http', 'rxjs/Rx', 'rxjs/add/operator
                     var _this = this;
                     if (this.quotesMap.size > 0) {
                         var stockcodes_1 = '';
-                        //create stock codes list
+                        // create stock codes list, each stock code is in format 'exchange:stockcode'
                         this.quotesMap.forEach(function (value, key) {
                             stockcodes_1 += key + ',';
                         });
+                        // Set query parameters
                         var params = new http_1.URLSearchParams();
                         params.set('client', 'ig');
                         params.set('q', stockcodes_1);
                         params.set('format', 'json');
                         params.set('callback', 'JSONP_CALLBACK');
+                        // Call the Google Finance API
                         this.jsonp
                             .get(this.base_url, { search: params })
                             .map(function (response) { return response.json(); })
                             .subscribe(function (newquotes) {
+                            // Update the Quotes map with new quotes received
                             _this.updateQuotesMap(newquotes);
-                            // Publish new quotes
+                            // Publish new quotes to subscribers
                             _this.quotePublisher.next(_this.quotesMap);
                         });
                     }
@@ -109,7 +113,7 @@ System.register(['@angular/core', '@angular/http', 'rxjs/Rx', 'rxjs/add/operator
                     });
                 };
                 ;
-                // Utility method to get list of tickers
+                // Utility method to load list of tickers from tickers-list.json
                 QuoteService.prototype.getTickers = function () {
                     var _this = this;
                     if (this.tickers.length === 0) {

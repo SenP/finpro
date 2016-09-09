@@ -1,3 +1,4 @@
+// Quote model
 export class Quote {
     instrument: string;
     exchange: string;   

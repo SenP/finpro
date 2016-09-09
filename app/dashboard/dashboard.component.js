@@ -42,8 +42,9 @@ System.register(['@angular/core', '../common/watchlist.service', '../common/quot
                 }
                 DashboardComponent.prototype.ngOnInit = function () {
                     var _this = this;
-                    // render charts and update dashboard        
-                    this.renderCharts();
+                    // set initial chart data & options and update the dashboard        
+                    this.initChartData();
+                    this.setChartOptions();
                     this.updateDashboard();
                     //subscribe to refresh scheduler and update dashboard at specified interval
                     this.refTimerSub = this.quoteService
@@ -55,28 +56,31 @@ System.register(['@angular/core', '../common/watchlist.service', '../common/quot
                 DashboardComponent.prototype.ngOnDestroy = function () {
                     this.refTimerSub.unsubscribe();
                 };
-                DashboardComponent.prototype.renderCharts = function () {
-                    this.setChartData();
-                    this.setChartOptions();
-                };
+                // recompute portfolio values, update charts with latest watchlist values 
                 DashboardComponent.prototype.updateDashboard = function () {
                     var _this = this;
                     var idx = 0;
                     var portfolioValue = 0;
                     var portfolioPnL = 0;
                     var portfolioDaychange = 0;
-                    var stocks = [];
+                    var stocks = new Map();
                     this.watchlists.forEach(function (wl) {
+                        var totalDayChange = wl.totalDayChange;
+                        var totalMarketValue = wl.totalMarketValue;
+                        var totalPnL = wl.totalPnL;
                         //update the charts with new values
-                        _this.daychangeChart.updateData(idx, wl.totalDayChange);
-                        _this.marketvalueChart.updateData(idx, wl.totalMarketValue);
-                        _this.pnlChart.updateData(idx, wl.totalPnL);
+                        _this.daychangeChart.updateData(idx, totalDayChange);
+                        _this.marketvalueChart.updateData(idx, totalMarketValue);
+                        _this.pnlChart.updateData(idx, totalPnL);
                         //update portfolio values
-                        portfolioValue += wl.totalMarketValue;
-                        portfolioPnL += wl.totalPnL;
-                        portfolioDaychange += wl.totalDayChange;
-                        stocks = stocks.concat(wl.instruments);
-                        //go to next watchlist
+                        portfolioValue += totalMarketValue;
+                        portfolioPnL += totalPnL;
+                        portfolioDaychange += totalDayChange;
+                        // update all stocks map
+                        wl.instruments.forEach(function (ins) {
+                            var stk = stocks.get(ins.instrument + ':' + ins.exchange);
+                            stk ? stk.push(ins) : stocks.set(ins.instrument + ':' + ins.exchange, [ins]);
+                        });
                         idx += 1;
                     });
                     this.portfolioValue = portfolioValue;
@@ -85,7 +89,8 @@ System.register(['@angular/core', '../common/watchlist.service', '../common/quot
                     //update allstocks list
                     this.allStocks = stocks;
                 };
-                DashboardComponent.prototype.setChartData = function () {
+                // compute initial chart values
+                DashboardComponent.prototype.initChartData = function () {
                     var _this = this;
                     this.portfolioDaychange, this.portfolioPnL, this.portfolioValue = 0;
                     var chartData = {
@@ -105,6 +110,7 @@ System.register(['@angular/core', '../common/watchlist.service', '../common/quot
                     });
                     this.chartData = chartData;
                 };
+                // set the chart display options
                 DashboardComponent.prototype.setChartOptions = function () {
                     var tooltipFn = function (txt) { return '<strong>{x}</strong><br/> ' + txt + '<b>${point.y}</b>'; };
                     var chartStyle = { "font-family": "Lato,'Helvetica Neue', Helvetica, Arial,'sans-serif'" };
@@ -124,7 +130,7 @@ System.register(['@angular/core', '../common/watchlist.service', '../common/quot
                             enabled: false
                         },
                         credits: {
-                            enabled: false
+                            enabled: true
                         }
                     };
                     this.optionsPnLChart = {

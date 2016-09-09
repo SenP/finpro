@@ -5,6 +5,7 @@ System.register([], function(exports_1, context_1) {
     return {
         setters:[],
         execute: function() {
+            // Quote model
             Quote = (function () {
                 function Quote() {
                 }

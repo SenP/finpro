@@ -13,8 +13,7 @@ System.register([], function(exports_1, context_1) {
                         if (this.unitsOwned > 0 && this.lastPrice > 0) {
                             return this.unitsOwned * this.lastPrice;
                         }
-                        else
-                            return 0;
+                        return 0;
                     },
                     enumerable: true,
                     configurable: true
@@ -24,8 +23,7 @@ System.register([], function(exports_1, context_1) {
                         if (this.unitsOwned && this.change) {
                             return this.unitsOwned * this.change;
                         }
-                        else
-                            return 0;
+                        return 0;
                     },
                     enumerable: true,
                     configurable: true
@@ -35,8 +33,7 @@ System.register([], function(exports_1, context_1) {
                         if (this.unitsOwned && this.avgPrice && this.lastPrice) {
                             return this.unitsOwned * (this.lastPrice - this.avgPrice);
                         }
-                        else
-                            return 0;
+                        return 0;
                     },
                     enumerable: true,
                     configurable: true

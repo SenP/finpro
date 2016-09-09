@@ -15,7 +15,10 @@ export class WatchlistService {
   //Get the watchlists (modify later to take userid param)
   getWatchlists() {
     this.watchlists = [];
+
+    // Retrieve watchlists from local storage
     let watchlistsRaw: Object[] = JSON.parse(localStorage.getItem("fpwatchlists"));
+
     if (watchlistsRaw) {
       watchlistsRaw.forEach(wlraw => {
         let newWL: Watchlist = Object.assign(new Watchlist(), wlraw);
@@ -30,7 +33,7 @@ export class WatchlistService {
     return this.watchlists;
   }
 
-  //Update watchlist instruments with given quotes 
+  // Update all watchlist instruments with the given quotes 
   updateQuotes(qmap: Map<string, Quote>) {
     this.watchlists.forEach(wl => {
       wl.instruments.forEach(stock => {
@@ -121,6 +124,7 @@ export class WatchlistService {
 
     return p;
   }
+
   //remove the selected watchlist
   doRemoveWatchlist(wlist: Watchlist) {
     let i = this.watchlists.findIndex(w => w.id === wlist.id);
@@ -139,6 +143,7 @@ export class WatchlistService {
     return { status: "success", data: wlist };
   }
 
+  // simulate http delete of watchlist item
   deleteWatchlistItem(wlist: Watchlist, wlItem: WatchlistItem) {
     let p = new Promise(resolve => setTimeout(() => {
       resolve(this.doRemoveWatchlistItem(wlist, wlItem));
@@ -146,6 +151,7 @@ export class WatchlistService {
 
     return p;
   }
+
   //remove the selected watchlist item
   doRemoveWatchlistItem(wlist: Watchlist, wlItem: WatchlistItem) {
     let wl = this.watchlists[this.watchlists.findIndex(w => w.id === wlist.id)];

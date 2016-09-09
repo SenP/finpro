@@ -30,10 +30,11 @@ System.register(['@angular/core', './common/watchlist.service', './common/quote.
                     this.quoteService = quoteService;
                     this.watchlists = [];
                     this.refInterval = 60;
-                    this.refFreqs = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60];
+                    this.refFreqs = [10, 20, 30, 40, 50, 60];
                 }
                 AppComponent.prototype.ngOnInit = function () {
                     var _this = this;
+                    // Get all watchlist from local storage
                     this.watchlists = this.watchlistService.getWatchlists();
                     //register all instruments with quote service
                     this.watchlists.forEach(function (wl) {
@@ -41,25 +42,27 @@ System.register(['@angular/core', './common/watchlist.service', './common/quote.
                             _this.quoteService.register(stock.instrument, stock.exchange);
                         });
                     });
+                    // Start quote service and update quotes at refInterval
                     this.quoteService
                         .init(this.refInterval * 1000)
                         .subscribe(function (qmap) {
                         _this.watchlistService.updateQuotes(qmap);
                     });
-                    // Load the tickers
+                    // Load the supported tickers
                     this.quoteService.getTickers();
                 };
                 AppComponent.prototype.onSelect = function (wl) {
+                    // Keep track of current watchlist being displayed, null for dashboard display
                     this.selectedWatchlist = wl;
                 };
                 AppComponent.prototype.onChangeTimer = function () {
+                    // Reset timer to new interval
                     this.quoteService.resetTimer(this.refInterval * 1000);
                 };
                 AppComponent = __decorate([
                     core_1.Component({
                         selector: 'finpro-app',
-                        templateUrl: 'app/app.component.html',
-                        styles: ["\n                .posLabel {\n                    color: green;\n                }\n                .negLabel {\n                    color: red;\n                }\n        "]
+                        templateUrl: 'app/app.component.html'
                     }), 
                     __metadata('design:paramtypes', [watchlist_service_1.WatchlistService, quote_service_1.QuoteService])
                 ], AppComponent);

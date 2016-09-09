@@ -38,7 +38,6 @@ export class WatchlistComponent implements OnChanges {
         info: "msg text-center text-info"
     }
 
-    exchanges: string[] = ["NASDAQ", "NYSE", "ASX"];
     tickers = [];
     selectStkCode;
     selectStkName;
@@ -99,18 +98,20 @@ export class WatchlistComponent implements OnChanges {
         let wli = this.editedItem;
         let result = { status: "success", msg: "success" };
 
-        //validate instrument
+        // validate instrument
         if (wli.instrument.length < 1 || wli.instrument.length > 10) {
             result.status = "error";
             result.msg = "Stock code should be between 3 to 10 characters";
             return result;
         }
-        if (this.isAdding && this.watchlist.instruments.findIndex(w => w.instrument === wli.instrument) !== -1) {
+        // check duplicates
+        if (this.isAdding && this.watchlist.instruments.findIndex(w => 
+                                    (w.instrument === wli.instrument) && (w.exchange === wli.exchange)) !== -1) {
             result.status = "error";
-            result.msg = "'" + wli.instrument + "' already exists in this watchlist";
+            result.msg = "'" + wli.instrument + ' / ' + wli.exchange + "' already exists in this watchlist";
             return result;
         }
-        //validate quantity
+        // validate quantity
         if (isNaN(wli.unitsOwned)) {
             result.status = "error";
             result.msg = "'Units owned' should be a number";
@@ -121,7 +122,7 @@ export class WatchlistComponent implements OnChanges {
             result.msg = "'Units owned' should be between 1 to 1 billion";
             return result;
         }
-        //validate avg price
+        // validate avg price
         if (isNaN(wli.avgPrice)) {
             result.status = "error";
             result.msg = "'Buy price' should be a number";
@@ -132,7 +133,12 @@ export class WatchlistComponent implements OnChanges {
             result.msg = "'Buy price' should be more than 0 and less than 10000";
             return result;
         }
-
+        // validate ticker code 
+        if (this.tickers.filter(t => t.Symbol === wli.instrument).length === 0) {
+            result.status = "error";
+            result.msg = "Invalid stock code";
+            return result;
+        }
         return result;
     }
 

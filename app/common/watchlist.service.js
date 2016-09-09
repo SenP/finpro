@@ -33,6 +33,7 @@ System.register(['@angular/core', './watchlist.model', '../common/quote.service'
                 WatchlistService.prototype.getWatchlists = function () {
                     var _this = this;
                     this.watchlists = [];
+                    // Retrieve watchlists from local storage
                     var watchlistsRaw = JSON.parse(localStorage.getItem("fpwatchlists"));
                     if (watchlistsRaw) {
                         watchlistsRaw.forEach(function (wlraw) {
@@ -47,7 +48,7 @@ System.register(['@angular/core', './watchlist.model', '../common/quote.service'
                     }
                     return this.watchlists;
                 };
-                //Update watchlist instruments with given quotes 
+                // Update all watchlist instruments with the given quotes 
                 WatchlistService.prototype.updateQuotes = function (qmap) {
                     this.watchlists.forEach(function (wl) {
                         wl.instruments.forEach(function (stock) {
@@ -145,6 +146,7 @@ System.register(['@angular/core', './watchlist.model', '../common/quote.service'
                     localStorage.setItem("fpwatchlists", JSON.stringify(this.watchlists));
                     return { status: "success", data: wlist };
                 };
+                // simulate http delete of watchlist item
                 WatchlistService.prototype.deleteWatchlistItem = function (wlist, wlItem) {
                     var _this = this;
                     var p = new Promise(function (resolve) { return setTimeout(function () {

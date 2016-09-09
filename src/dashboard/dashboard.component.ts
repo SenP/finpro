@@ -51,16 +51,17 @@ export class DashboardComponent implements OnInit, OnDestroy {
     // Refresh scheduler
     refTimerSub: Subscription;
 
-    //All stocks
-    allStocks: WatchlistItem[];
+    // All stocks
+    allStocks: Map<string, WatchlistItem[]>;
 
     constructor(private watchlistService: WatchlistService,
         private quoteService: QuoteService) { }
 
     ngOnInit() {
-        // render charts and update dashboard        
-        this.renderCharts(); 
-        this.updateDashboard();        
+        // set initial chart data & options and update the dashboard        
+        this.initChartData();
+        this.setChartOptions();
+        this.updateDashboard();
 
         //subscribe to refresh scheduler and update dashboard at specified interval
         this.refTimerSub = this.quoteService
@@ -68,35 +69,41 @@ export class DashboardComponent implements OnInit, OnDestroy {
             .subscribe(() => {
                 this.updateDashboard();
             });
-    }   
+    }
 
     ngOnDestroy() {
         this.refTimerSub.unsubscribe();
     }
 
-    renderCharts() {
-        this.setChartData();
-        this.setChartOptions();
-    }
-
+    // recompute portfolio values, update charts with latest watchlist values 
     updateDashboard() {
         let idx = 0;
         let portfolioValue = 0;
         let portfolioPnL = 0;
         let portfolioDaychange = 0;
-        let stocks = [];
+        let stocks = new Map<string, WatchlistItem[]>();
 
         this.watchlists.forEach(wl => {
+            let totalDayChange = wl.totalDayChange;
+            let totalMarketValue = wl.totalMarketValue;
+            let totalPnL = wl.totalPnL;
+
             //update the charts with new values
-            this.daychangeChart.updateData(idx, wl.totalDayChange);
-            this.marketvalueChart.updateData(idx, wl.totalMarketValue);
-            this.pnlChart.updateData(idx, wl.totalPnL);
+            this.daychangeChart.updateData(idx, totalDayChange);
+            this.marketvalueChart.updateData(idx, totalMarketValue);
+            this.pnlChart.updateData(idx, totalPnL);
+
             //update portfolio values
-            portfolioValue += wl.totalMarketValue;
-            portfolioPnL += wl.totalPnL;
-            portfolioDaychange += wl.totalDayChange;
-            stocks = stocks.concat(wl.instruments);
-            //go to next watchlist
+            portfolioValue += totalMarketValue;
+            portfolioPnL += totalPnL;
+            portfolioDaychange += totalDayChange;
+            
+            // update all stocks map
+            wl.instruments.forEach(ins => {
+                let stk = stocks.get(ins.instrument + ':' + ins.exchange);
+                stk ? stk.push(ins) : stocks.set(ins.instrument + ':' + ins.exchange, [ins]);
+            });
+
             idx += 1;
         });
         this.portfolioValue = portfolioValue;
@@ -106,7 +113,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.allStocks = stocks;
     }
 
-    setChartData() {
+    // compute initial chart values
+    initChartData() {
         this.portfolioDaychange, this.portfolioPnL, this.portfolioValue = 0;
         let chartData = {
             dataLabels: [],
@@ -129,6 +137,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.chartData = chartData;
     }
 
+    // set the chart display options
     setChartOptions() {
 
         let tooltipFn = (txt) => '<strong>{x}</strong><br/> ' + txt + '<b>${point.y}</b>';
@@ -151,7 +160,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 enabled: false
             },
             credits: {
-                enabled: false
+                enabled: true
             }
         };
 

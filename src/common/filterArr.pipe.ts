@@ -1,9 +1,11 @@
 import { Pipe, PipeTransform } from '@angular/core';
 
+// Pipe to filter top/bottom N objects in the given array based on the given order by property
+
 @Pipe({ name: 'fp-filter' })
 export class FilterArrPipe implements PipeTransform {
 
-  transform(value: Object[], prop: string, itemsCount = 5, order: string = 'asc'): Array<Object> {
+  transform(value: Object[], prop: string, itemsCount = 5, order: string = 'dsc'): Array<Object> {
     
     if (!value || value.length === 0 || !prop ) return [];
 

@@ -18,6 +18,7 @@ System.register(['@angular/core'], function(exports_1, context_1) {
                 core_1 = core_1_1;
             }],
         execute: function() {
+            // Directive to apply green/red color to host content based on its value
             SignDirective = (function () {
                 function SignDirective(renderer, elementRef) {
                     this.renderer = renderer;
@@ -35,7 +36,7 @@ System.register(['@angular/core'], function(exports_1, context_1) {
                         return 'black'; //no numbers in text
                     var val = parseFloat(numarr.join(""));
                     if (isNaN(val) || val == 0)
-                        return 'black'; //not a number
+                        return 'black'; //not a number or 0
                     if (val < 0) {
                         return 'red';
                     }

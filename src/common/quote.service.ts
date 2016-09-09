@@ -4,22 +4,22 @@ import { Observable, Subject, Subscription } from 'rxjs/Rx';
 import 'rxjs/add/operator/map';
 
 import { Quote } from '../common/quote.model';
-import { WatchlistItem } from './watchlist.model';
 
 @Injectable()
 
 export class QuoteService {
 
+    // Quotes service gets all quotes from Google Finance 
     private base_url = 'http://finance.google.com/finance/info';
 
     private quoteScheduler: Subscription;
-    quotePublisher: Subject<any>;
     private quotesMap: Map<string, Quote>;
 
-    tickers = [];
+    quotePublisher: Subject<any>; // Subject used to pubslish new quotes to subscribers
+    tickers = []; // List of all supported tickers in NASDAQ, NYSE and ASX exchanges
 
     constructor(private jsonp: Jsonp, private http: Http) {
-        this.quotesMap = new Map();
+        this.quotesMap = new Map<string, Quote>();
         this.quotePublisher = new Subject();
     }
 
@@ -28,7 +28,7 @@ export class QuoteService {
 
         this.quoteScheduler = Observable.timer(0, refInterval)
             .subscribe(
-            () => this.refreshQuotes()
+                () => this.refreshQuotes()
             );
         return this.quotePublisher;
     }
@@ -43,7 +43,7 @@ export class QuoteService {
         this.quoteScheduler.unsubscribe();
         this.quoteScheduler = Observable.timer(0, refInterval)
             .subscribe(
-            () => this.refreshQuotes()
+                () => this.refreshQuotes()
             );
     }
 
@@ -69,24 +69,27 @@ export class QuoteService {
         if (this.quotesMap.size > 0) {
             let stockcodes = '';
 
-            //create stock codes list
+            // create stock codes list, each stock code is in format 'exchange:stockcode'
             this.quotesMap.forEach((value, key) => {
                 stockcodes += key + ',';
 
             });
-            let params = new URLSearchParams();
 
+            // Set query parameters
+            let params = new URLSearchParams();
             params.set('client', 'ig');
             params.set('q', stockcodes);
             params.set('format', 'json');
             params.set('callback', 'JSONP_CALLBACK');
 
+            // Call the Google Finance API
             this.jsonp
                 .get(this.base_url, { search: params })
                 .map(response => response.json())
                 .subscribe(newquotes => {
+                    // Update the Quotes map with new quotes received
                     this.updateQuotesMap(newquotes);
-                    // Publish new quotes
+                    // Publish new quotes to subscribers
                     this.quotePublisher.next(this.quotesMap);
                 });
         }
@@ -104,7 +107,7 @@ export class QuoteService {
         });
     };
 
-    // Utility method to get list of tickers
+    // Utility method to load list of tickers from tickers-list.json
     getTickers() {
         if (this.tickers.length === 0) {
             this.http

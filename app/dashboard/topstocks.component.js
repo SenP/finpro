@@ -1,4 +1,4 @@
-System.register(['@angular/core', '../common/watchlist.service', '../common/filterArr.pipe'], function(exports_1, context_1) {
+System.register(['@angular/core', '../common/filterArr.pipe'], function(exports_1, context_1) {
     "use strict";
     var __moduleName = context_1 && context_1.id;
     var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
@@ -10,35 +10,40 @@ System.register(['@angular/core', '../common/watchlist.service', '../common/filt
     var __metadata = (this && this.__metadata) || function (k, v) {
         if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
     };
-    var core_1, watchlist_service_1, filterArr_pipe_1;
+    var core_1, filterArr_pipe_1;
     var TopstocksComponent;
     return {
         setters:[
             function (core_1_1) {
                 core_1 = core_1_1;
             },
-            function (watchlist_service_1_1) {
-                watchlist_service_1 = watchlist_service_1_1;
-            },
             function (filterArr_pipe_1_1) {
                 filterArr_pipe_1 = filterArr_pipe_1_1;
             }],
         execute: function() {
             TopstocksComponent = (function () {
-                function TopstocksComponent(watchlistService, filterList) {
-                    this.watchlistService = watchlistService;
+                function TopstocksComponent(filterList) {
                     this.filterList = filterList;
                     this.topStocks = [];
                 }
-                TopstocksComponent.prototype.ngOnInit = function () {
-                    this.topStocks = this.filterList.transform(this.allStocks, this.orderBy, this.numRequired, this.sortOrder);
-                };
                 TopstocksComponent.prototype.ngOnChanges = function () {
-                    this.topStocks = this.filterList.transform(this.allStocks, this.orderBy, this.numRequired, this.sortOrder);
+                    this.topStocks = this.filterList.transform(this.getFlatList(), this.orderBy, this.numRequired, this.sortOrder);
+                };
+                TopstocksComponent.prototype.getFlatList = function () {
+                    var _this = this;
+                    var flatList = [];
+                    this.allStocks.forEach(function (stocks, key) {
+                        var _a = key.split(':'), instrument = _a[0], exchange = _a[1];
+                        var value = 0;
+                        stocks.forEach(function (stock) { return value += stock[_this.orderBy]; });
+                        flatList.push((_b = { instrument: instrument, exchange: exchange }, _b[_this.orderBy] = value, _b));
+                        var _b;
+                    });
+                    return flatList;
                 };
                 __decorate([
                     core_1.Input('stocks'), 
-                    __metadata('design:type', Array)
+                    __metadata('design:type', Map)
                 ], TopstocksComponent.prototype, "allStocks", void 0);
                 __decorate([
                     core_1.Input(), 
@@ -62,7 +67,7 @@ System.register(['@angular/core', '../common/watchlist.service', '../common/filt
                         templateUrl: 'app/dashboard/topstocks.component.html',
                         styles: ["\n                .number-field {\n                    text-align: center\n                }                \n                .topTable {\n                    background: white\n                }                \n        "]
                     }), 
-                    __metadata('design:paramtypes', [watchlist_service_1.WatchlistService, filterArr_pipe_1.FilterArrPipe])
+                    __metadata('design:paramtypes', [filterArr_pipe_1.FilterArrPipe])
                 ], TopstocksComponent);
                 return TopstocksComponent;
             }());

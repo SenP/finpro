@@ -1,7 +1,5 @@
-import { Observable, Subscription, Subject } from 'rxjs/Rx';
 import { Component, OnChanges, Input } from '@angular/core';
-import { Watchlist, WatchlistItem } from '../common/watchlist.model';
-import { WatchlistService } from '../common/watchlist.service';
+import { WatchlistItem } from '../common/watchlist.model';
 import { FilterArrPipe } from '../common/filterArr.pipe';
 
 @Component({
@@ -19,23 +17,28 @@ import { FilterArrPipe } from '../common/filterArr.pipe';
 
 export class TopstocksComponent implements OnChanges {
 
-    @Input('stocks') allStocks: WatchlistItem[];
+    @Input('stocks') allStocks: Map<string, WatchlistItem[]>;
     @Input() title;
     @Input() orderBy;
     @Input() numRequired;
     @Input() sortOrder;
 
-    topStocks: WatchlistItem[] = [];
+    topStocks: Object[] = [];
 
-    constructor(private watchlistService: WatchlistService,
-        private filterList: FilterArrPipe) { }
-
-    ngOnInit() {
-        this.topStocks = this.filterList.transform(this.allStocks, this.orderBy, this.numRequired, this.sortOrder);
-    }
+    constructor(private filterList: FilterArrPipe) { } 
 
     ngOnChanges() {
-        this.topStocks = this.filterList.transform(this.allStocks, this.orderBy, this.numRequired, this.sortOrder);
+        this.topStocks = this.filterList.transform(this.getFlatList(), this.orderBy, this.numRequired, this.sortOrder);
     }
-    
+
+    getFlatList(): Object[] {
+        let flatList = [];
+        this.allStocks.forEach((stocks, key) {
+            let [instrument, exchange] = key.split(':');
+            let value = 0;
+            stocks.forEach(stock => value += stock[this.orderBy]);
+            flatList.push({ instrument, exchange, [this.orderBy]: value });
+        })
+        return flatList;
+    }
 }

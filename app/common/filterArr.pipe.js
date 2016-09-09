@@ -18,12 +18,13 @@ System.register(['@angular/core'], function(exports_1, context_1) {
                 core_1 = core_1_1;
             }],
         execute: function() {
+            // Pipe to filter top/bottom N objects in the given array based on the given order by property
             FilterArrPipe = (function () {
                 function FilterArrPipe() {
                 }
                 FilterArrPipe.prototype.transform = function (value, prop, itemsCount, order) {
                     if (itemsCount === void 0) { itemsCount = 5; }
-                    if (order === void 0) { order = 'asc'; }
+                    if (order === void 0) { order = 'dsc'; }
                     if (!value || value.length === 0 || !prop)
                         return [];
                     var list = value;

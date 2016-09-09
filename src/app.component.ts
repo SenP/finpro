@@ -7,15 +7,7 @@ import { Quote } from './common/quote.model';
 
 @Component({
     selector: 'finpro-app',
-    templateUrl: 'app/app.component.html',
-    styles: [`
-                .posLabel {
-                    color: green;
-                }
-                .negLabel {
-                    color: red;
-                }
-        `]
+    templateUrl: 'app/app.component.html'    
 })
 
 export class AppComponent implements OnInit {
@@ -23,13 +15,13 @@ export class AppComponent implements OnInit {
     watchlists: Watchlist[] = [];
     selectedWatchlist: Watchlist;
     refInterval: number = 60;
-    refFreqs: number[] = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60];
+    refFreqs: number[] =  [10, 20, 30, 40, 50, 60];
 
     constructor(private watchlistService: WatchlistService,
-        private quoteService: QuoteService
-    ) { }
+        private quoteService: QuoteService) { }
 
     ngOnInit() {
+        // Get all watchlist from local storage
         this.watchlists = this.watchlistService.getWatchlists();
 
         //register all instruments with quote service
@@ -39,21 +31,24 @@ export class AppComponent implements OnInit {
             });
         });
 
+        // Start quote service and update quotes at refInterval
         this.quoteService
             .init(this.refInterval * 1000)
             .subscribe(qmap => {
                 this.watchlistService.updateQuotes(qmap);
             });
             
-        // Load the tickers
+        // Load the supported tickers
         this.quoteService.getTickers();
     }
 
     onSelect(wl) {
+        // Keep track of current watchlist being displayed, null for dashboard display
         this.selectedWatchlist = wl;
     }
 
     onChangeTimer() {
+        // Reset timer to new interval
         this.quoteService.resetTimer(this.refInterval * 1000);
     }
 }
