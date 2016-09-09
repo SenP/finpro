@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "rootDir": "src",
-    "outDir": "app",
+    "outDir": "public",
     "target": "es5",
     "module": "system",
     "moduleResolution": "node",
@@ -11,7 +11,10 @@
     "noImplicitAny": false
   },
   "exclude": [
+    "public",
+    "app",
     "node_modules",
+    "src/node_modules",
     "typings/main",
     "typings/main.d.ts"
   ],

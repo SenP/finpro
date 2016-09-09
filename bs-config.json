@@ -1,6 +1,7 @@
 {
-  "port": 8080,
-  "files": [
-    "./index.html", "./app/**/*.js", "./app/**/*.html"
-  ]
+	"port": 8080,
+	"files": [
+		"./index.html", "./**/*.js", "./**/*.html"
+	],
+	"server": { "baseDir": "public" }
 }
