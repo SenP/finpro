@@ -3,12 +3,12 @@
   // map tells the System loader where to look for things
   var map = {
     'app':                        'app', // 'dist',
-    'rxjs':                       'node_modules/rxjs',
-    '@angular':                   'node_modules/@angular',
-    'angular2-highcharts':        'node_modules/angular2-highcharts/dist', 
-    'highcharts/highstock.src':   'node_modules/angular2-highcharts/dist/highstock.js',
-    'ng2-bootstrap/ng2-bootstrap': 'node_modules/ng2-bootstrap',
-    'moment':                      'node_modules/moment'
+    'rxjs':                       'vendor/rxjs',
+    '@angular':                   'vendor/@angular',
+    'angular2-highcharts':        'vendor/angular2-highcharts/dist', 
+    'highcharts/highstock.src':   'vendor/angular2-highcharts/dist/highstock.js',
+    'ng2-bootstrap/ng2-bootstrap': 'vendor/ng2-bootstrap',
+    'moment':                      'vendor/moment'
   };
 
   // packages tells the System loader how to load when no filename and/or no extension
