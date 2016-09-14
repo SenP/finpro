@@ -2,40 +2,27 @@
 <html>
 
 	<head>
-		<title>Finpro - Watch your stocks</title>
-		<base href="/">
-
-		<!--<meta name="viewport" content="width=device-width, initial-scale=1">-->
-		<!--<script src="vendor/ng2-bootstrap/bundles/ng2-bootstrap.min.js"></script>-->
-		<link rel="stylesheet" href="vendor/bootstrap/dist/css/bootstrap.flatly.min.css">
-		<!--<link rel="stylesheet" href="app/assets/stylesheets/styles.css">-->
-		<link rel="stylesheet" href="app/assets/stylesheets/font-awesome.min.css">
-		<style type="text/css">
-			.posLabel {
-				color: green;
-			}
-			
-			.negLabel {
-				color: red;
-			}
-		</style>
-
-		<script src="vendor/es6-shim/es6-shim.min.js"></script>
-		<script src="vendor/reflect-metadata/Reflect.js"></script>
-		<script src="vendor/systemjs/dist/system.src.js"></script>
-		<script src="vendor/zone.js/dist/zone.js"></script>
-		<!--<script src="systemjs.config.js"></script>-->
-		<script>
-			// System.import('app').catch(function(err) { console.error(err); });
-			System.import('systemjs.config.js').then(function() {
-				System.import('app');
-			}).catch(console.error.bind(console));
-		</script>
+		<meta charset="utf-8">
+		<title>Finpro2</title>
+		<base href="/"> 		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<link rel="icon" type="image/x-icon" href="favicon.ico">
+		<!--Add custom files-->
+		<link rel="stylesheet" href="assets/stylesheets/bootstrap.flatly.min.css">		
+		<link rel="stylesheet" href="assets/stylesheets/font-awesome.min.css">
 	</head>
 
 	<body>
-
 		<finpro-app>Loading...</finpro-app>
+
+		<script src="vendor/es6-shim/es6-shim.js"></script>
+		<script src="vendor/reflect-metadata/Reflect.js"></script>
+		<script src="vendor/systemjs/dist/system.src.js"></script>
+		<script src="vendor/zone.js/dist/zone.js"></script>
+		<script>
+			System.import('system-config.js').then(function() {
+				System.import('main');
+			}).catch(console.error.bind(console));
+		</script>
 
 	</body>
 
